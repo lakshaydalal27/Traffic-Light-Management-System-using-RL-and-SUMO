@@ -161,6 +161,7 @@ def run_rl_simulation(train_mode=True, epochs=100, steps=500):
             # ── Simulation step ───────────────────────────────────────────────
             try:
                 traci.simulationStep()
+                time.sleep(0.2)
             except Exception:
                 print(f"Simulation step failed at step {step}, stopping epoch.")
                 break

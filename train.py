@@ -83,7 +83,7 @@ class Agent:
         n_actions,
         junctions,
         max_memory_size=50000,
-        epsilon_dec=0.015,   # FIX: decay per EPOCH not per step
+        epsilon_dec=0.02,   # FIX: decay per EPOCH not per step
         epsilon_end=0.05,
     ):
         self.gamma = gamma
@@ -242,9 +242,13 @@ def run(train=True, model_name="model", epochs=50, steps=500, ard=False):
         step       = 0
         total_time = 0
 
-        traffic_lights_time      = {j: 0   for j in all_junctions}
-        prev_vehicles_per_lane   = {jn: [0] * input_dims for jn in junction_numbers}
-        prev_action              = {jn: 0  for jn in junction_numbers}
+        traffic_lights_time = {j: 0 for j in all_junctions}
+        # pending[jn] holds (state_taken_in, action_chosen) from the previous
+        # decision cycle. When that cycle ends we know its reward (waiting
+        # time accumulated while the action was active) and the new state,
+        # so we can store a CORRECT (s, a, r, s') tuple.
+        pending = {jn: None for jn in junction_numbers}
+        pending_wait_accum = {jn: 0.0 for jn in junction_numbers}
 
         while step <= steps:
             traci.simulationStep()
@@ -255,37 +259,42 @@ def run(train=True, model_name="model", epochs=50, steps=500, ard=False):
                 except Exception:
                     break
 
-                waiting_time  = get_waiting_time(controled_lanes)
-                total_time   += waiting_time
+                waiting_time = get_waiting_time(controled_lanes)
+                total_time += waiting_time
+                # Accumulate waiting time experienced under the action that's
+                # currently active (= the action chosen in the previous cycle).
+                pending_wait_accum[junction_number] += waiting_time
 
                 if traffic_lights_time[junction] == 0:
+                    # ── current observation (this is s' for the previous action) ──
                     vehicles_per_lane = get_vehicle_numbers(controled_lanes)
-
                     seen = {}
                     for lane, count in vehicles_per_lane.items():
                         seen[lane] = seen.get(lane, 0) + count
-                    state_ = list(seen.values())[:input_dims]
-                    while len(state_) < input_dims:
-                        state_.append(0)
+                    next_state = list(seen.values())[:input_dims]
+                    while len(next_state) < input_dims:
+                        next_state.append(0)
 
-                    # Reward: clear the most congested lane (better signal)
-                    max_queue = max(state_) if max(state_) > 0 else 1
-                    reward = -(waiting_time / max_queue)
-                    state  = prev_vehicles_per_lane[junction_number]
-                    prev_vehicles_per_lane[junction_number] = state_
+                    # ── close out the previous decision: (s, a, r, s') ──
+                    if pending[junction_number] is not None and train:
+                        prev_state, prev_act = pending[junction_number]
+                        # reward = negative waiting accumulated while prev_act
+                        # was the active phase (true credit assignment)
+                        reward = -1.0 * pending_wait_accum[junction_number]
+                        brain.store_transition(
+                            prev_state, next_state, prev_act,
+                            reward, (step == steps)
+                        )
+                        brain.learn()
 
-                    brain.store_transition(state, state_, prev_action[junction_number],
-                                           reward, (step == steps))
+                    # ── pick a new action for current state ──
+                    action = brain.choose_action(next_state)
+                    pending[junction_number] = (next_state, action)
+                    pending_wait_accum[junction_number] = 0.0
 
-                    lane = brain.choose_action(state_)
-                    prev_action[junction_number] = lane
-
-                    phaseDuration(junction, 6, select_lane[lane][0])
-                    phaseDuration(junction, min_duration + 10, select_lane[lane][1])
+                    phaseDuration(junction, 6, select_lane[action][0])
+                    phaseDuration(junction, min_duration + 10, select_lane[action][1])
                     traffic_lights_time[junction] = min_duration + 10
-
-                    if train:
-                        brain.learn()  # FIX: random mini-batch learning
                 else:
                     traffic_lights_time[junction] -= 1
 

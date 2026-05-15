@@ -1,0 +1,23 @@
+DQN vs Fixed-Timer Benchmark Results
+============================================================
+
+Runs per controller : 5
+Steps per run       : 500
+
+Fixed Timer baseline:
+  Run 1: 1,213,968
+  Run 2: 1,213,968
+  Run 3: 1,213,968
+  Run 4: 1,213,968
+  Run 5: 1,213,968
+  Mean: 1,213,968  Std: 0
+
+DQN agent (best_model.bin):
+  Run 1: 17,502,516
+  Run 2: 17,502,516
+  Run 3: 17,502,516
+  Run 4: 17,502,516
+  Run 5: 17,502,516
+  Mean: 17,502,516  Std: 0
+
+Improvement: -1341.8%
