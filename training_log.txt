@@ -1,0 +1,1165 @@
+***Starting server on port 52735 ***
+Loading net-file from 'maps/network.net.xml' ... done (4ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 0.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.01s
+ TraCI-Duration: 0.00s
+ Real time factor: 0
+ UPS: 0.000000
+Vehicles:
+ Inserted: 0 (Loaded: 2)
+ Running: 0
+ Waiting: 0
+***Starting server on port 52741 ***
+Loading net-file from 'maps/network.net.xml' ... done (4ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.54s
+ TraCI-Duration: 0.48s
+ Real time factor: 929.499
+ UPS: 51217.068646
+Vehicles:
+ Inserted: 152
+ Running: 9
+ Waiting: 0
+ Retrying in 1 seconds
+Device: cpu
+State length: 16, Input dims: 4
+Junctions: ['0']
+Phase strings:
+  Action 0: yellow=yyyyrrrrrrrrrrrr  green=GGGGrrrrrrrrrrrr
+  Action 1: yellow=rrrryyyyrrrrrrrr  green=rrrrGGGGrrrrrrrr
+  Action 2: yellow=rrrrrrrryyyyrrrr  green=rrrrrrrrGGGGrrrr
+  Action 3: yellow=rrrrrrrrrrrryyyy  green=rrrrrrrrrrrrGGGG
+ Retrying in 1 seconds
+epoch: 0  epsilon: 1.000
+total_time 2756508.0
+  ✓ Best model saved (epoch 0, waiting=2756508)
+***Starting server on port 52746 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '18' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Vehicle '18' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-13.28, offset=2.33), time=50.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.60s
+ TraCI-Duration: 0.55s
+ Real time factor: 836.394
+ UPS: 53035.058431
+Vehicles:
+ Inserted: 152
+ Running: 34
+ Waiting: 0
+ Emergency Stops: 1
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 1  epsilon: 0.980
+total_time 6198876.0
+***Starting server on port 52752 ***
+Loading net-file from 'maps/network.net.xml' ... done (5ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.58s
+ TraCI-Duration: 0.53s
+ Real time factor: 869.792
+ UPS: 50845.486111
+Vehicles:
+ Inserted: 152
+ Running: 18
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 2  epsilon: 0.960
+total_time 4349944.0
+***Starting server on port 52755 ***
+Loading net-file from 'maps/network.net.xml' ... done (5ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '5' performs emergency braking on lane '1to0_0' with decel=9.00, wished=4.50, severity=1.00, time=33.00.
+Warning: Vehicle '5' performs emergency stop at the end of lane '1to0_0' because of a red traffic light (decel=-9.58, offset=0.50), time=33.00.
+Warning: Vehicle '39' performs emergency braking on lane '2to0_0' with decel=9.00, wished=4.50, severity=1.00, time=65.00.
+Warning: Vehicle '39' performs emergency stop at the end of lane '2to0_0' because of a red traffic light (decel=-11.77, offset=1.58), time=66.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.62s
+ TraCI-Duration: 0.57s
+ Real time factor: 805.466
+ UPS: 55000.000000
+Vehicles:
+ Inserted: 152
+ Running: 36
+ Waiting: 0
+ Emergency Stops: 2
+ Emergency Braking: 2
+ Retrying in 1 seconds
+epoch: 3  epsilon: 0.940
+total_time 9317700.0
+***Starting server on port 52761 ***
+Loading net-file from 'maps/network.net.xml' ... done (6ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.58s
+ TraCI-Duration: 0.54s
+ Real time factor: 859.348
+ UPS: 51156.089194
+Vehicles:
+ Inserted: 152
+ Running: 10
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 4  epsilon: 0.920
+total_time 3762356.0
+***Starting server on port 52764 ***
+Loading net-file from 'maps/network.net.xml' ... done (4ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '25' performs emergency braking on lane '2to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.60s
+ TraCI-Duration: 0.55s
+ Real time factor: 833.611
+ UPS: 52522.462562
+Vehicles:
+ Inserted: 152
+ Running: 22
+ Waiting: 0
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 5  epsilon: 0.900
+total_time 3650724.0
+***Starting server on port 52767 ***
+Loading net-file from 'maps/network.net.xml' ... done (4ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.57s
+ TraCI-Duration: 0.52s
+ Real time factor: 885.159
+ UPS: 48639.575972
+Vehicles:
+ Inserted: 152
+ Running: 12
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 6  epsilon: 0.880
+total_time 1807080.0
+  ✓ Best model saved (epoch 6, waiting=1807080)
+***Starting server on port 52770 ***
+Loading net-file from 'maps/network.net.xml' ... done (1ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.57s
+ TraCI-Duration: 0.53s
+ Real time factor: 882.042
+ UPS: 50383.802817
+Vehicles:
+ Inserted: 152
+ Running: 21
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 7  epsilon: 0.860
+total_time 3719660.0
+***Starting server on port 52774 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '30' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=177.00.
+Warning: Vehicle '30' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-11.67, offset=1.31), time=177.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.67s
+ TraCI-Duration: 0.62s
+ Real time factor: 753.383
+ UPS: 58210.526316
+Vehicles:
+ Inserted: 152
+ Running: 59
+ Waiting: 0
+ Emergency Stops: 1
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 8  epsilon: 0.840
+total_time 8794692.0
+***Starting server on port 52778 ***
+Loading net-file from 'maps/network.net.xml' ... done (4ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.61s
+ TraCI-Duration: 0.55s
+ Real time factor: 822.66
+ UPS: 50904.761905
+Vehicles:
+ Inserted: 152
+ Running: 29
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 9  epsilon: 0.820
+total_time 3741276.0
+***Starting server on port 52781 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '5' performs emergency braking on lane '1to0_0' with decel=9.00, wished=4.50, severity=1.00, time=33.00.
+Warning: Vehicle '5' performs emergency stop at the end of lane '1to0_0' because of a red traffic light (decel=-9.58, offset=0.50), time=33.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.60s
+ TraCI-Duration: 0.56s
+ Real time factor: 833.611
+ UPS: 51437.603993
+Vehicles:
+ Inserted: 152
+ Running: 28
+ Waiting: 0
+ Emergency Stops: 1
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 10  epsilon: 0.800
+total_time 3002696.0
+***Starting server on port 52786 ***
+Loading net-file from 'maps/network.net.xml' ... done (6ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '25' performs emergency braking on lane '2to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Vehicle '19' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=97.00.
+Warning: Vehicle '19' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-11.68, offset=1.27), time=97.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.63s
+ TraCI-Duration: 0.58s
+ Real time factor: 791.469
+ UPS: 55921.011058
+Vehicles:
+ Inserted: 152
+ Running: 40
+ Waiting: 0
+ Emergency Stops: 1
+ Emergency Braking: 2
+ Retrying in 1 seconds
+epoch: 11  epsilon: 0.780
+total_time 6542720.0
+***Starting server on port 52789 ***
+Loading net-file from 'maps/network.net.xml' ... done (6ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.60s
+ TraCI-Duration: 0.56s
+ Real time factor: 832.226
+ UPS: 53156.146179
+Vehicles:
+ Inserted: 152
+ Running: 29
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 12  epsilon: 0.760
+total_time 5007264.0
+***Starting server on port 52792 ***
+Loading net-file from 'maps/network.net.xml' ... done (1ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '61'; waited too long (yield), lane='4to0_0', time=429.00.
+Warning: Vehicle '61' ends teleporting on edge '0to3', time=429.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.59s
+ TraCI-Duration: 0.55s
+ Real time factor: 854.949
+ UPS: 51228.668942
+Vehicles:
+ Inserted: 152
+ Running: 24
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Retrying in 1 seconds
+epoch: 13  epsilon: 0.740
+total_time 6098228.0
+***Starting server on port 52795 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.68s
+ TraCI-Duration: 0.63s
+ Real time factor: 740.03
+ UPS: 58350.073855
+Vehicles:
+ Inserted: 152
+ Running: 71
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 14  epsilon: 0.720
+total_time 9055016.0
+***Starting server on port 52799 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.68s
+ TraCI-Duration: 0.63s
+ Real time factor: 734.604
+ UPS: 60356.304985
+Vehicles:
+ Inserted: 152
+ Running: 64
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 15  epsilon: 0.700
+total_time 9909620.0
+***Starting server on port 52803 ***
+Loading net-file from 'maps/network.net.xml' ... done (2ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.65s
+ TraCI-Duration: 0.60s
+ Real time factor: 774.343
+ UPS: 59729.520866
+Vehicles:
+ Inserted: 152
+ Running: 48
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 16  epsilon: 0.680
+total_time 6677228.0
+***Starting server on port 52806 ***
+Loading net-file from 'maps/network.net.xml' ... done (5ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '25' performs emergency braking on lane '2to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.65s
+ TraCI-Duration: 0.60s
+ Real time factor: 767.228
+ UPS: 57924.961715
+Vehicles:
+ Inserted: 152
+ Running: 35
+ Waiting: 0
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 17  epsilon: 0.660
+total_time 5475820.0
+***Starting server on port 52809 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '18' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Vehicle '18' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-12.94, offset=0.80), time=50.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.63s
+ TraCI-Duration: 0.58s
+ Real time factor: 796.502
+ UPS: 56907.790143
+Vehicles:
+ Inserted: 152
+ Running: 44
+ Waiting: 0
+ Emergency Stops: 1
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 18  epsilon: 0.640
+total_time 9273968.0
+***Starting server on port 52812 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '18' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Vehicle '18' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-13.28, offset=2.33), time=50.00.
+Warning: Teleporting vehicle '18'; waited too long (yield), lane='4to0_0', time=351.00.
+Warning: Vehicle '18' ends teleporting on edge '0to3', time=351.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.67s
+ TraCI-Duration: 0.62s
+ Real time factor: 743.323
+ UPS: 58859.050445
+Vehicles:
+ Inserted: 152
+ Running: 68
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Emergency Stops: 1
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 19  epsilon: 0.620
+total_time 9651956.0
+***Starting server on port 52815 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '5' performs emergency braking on lane '1to0_0' with decel=9.00, wished=4.50, severity=1.00, time=33.00.
+Warning: Vehicle '5' performs emergency stop at the end of lane '1to0_0' because of a red traffic light (decel=-9.58, offset=0.50), time=33.00.
+Warning: Vehicle '18' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Vehicle '18' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-12.94, offset=0.80), time=50.00.
+Warning: Teleporting vehicle '18'; waited too long (yield), lane='4to0_0', time=351.00.
+Warning: Vehicle '18' ends teleporting on edge '0to3', time=351.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.64s
+ TraCI-Duration: 0.58s
+ Real time factor: 786.499
+ UPS: 54875.981162
+Vehicles:
+ Inserted: 152
+ Running: 49
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Emergency Stops: 2
+ Emergency Braking: 2
+ Retrying in 1 seconds
+epoch: 20  epsilon: 0.600
+total_time 8944724.0
+***Starting server on port 52819 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '5'; waited too long (yield), lane='1to0_0', time=335.00.
+Warning: Vehicle '5' ends teleporting on edge '0to3', time=335.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.67s
+ TraCI-Duration: 0.62s
+ Real time factor: 748.879
+ UPS: 59588.938714
+Vehicles:
+ Inserted: 152
+ Running: 64
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Retrying in 1 seconds
+epoch: 21  epsilon: 0.580
+total_time 10519860.0
+***Starting server on port 52823 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '18' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Vehicle '18' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-12.94, offset=0.80), time=50.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.63s
+ TraCI-Duration: 0.58s
+ Real time factor: 800.319
+ UPS: 54861.022364
+Vehicles:
+ Inserted: 152
+ Running: 54
+ Waiting: 0
+ Emergency Stops: 1
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 22  epsilon: 0.560
+total_time 6233004.0
+***Starting server on port 52826 ***
+Loading net-file from 'maps/network.net.xml' ... done (2ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.62s
+ TraCI-Duration: 0.57s
+ Real time factor: 810.68
+ UPS: 55707.119741
+Vehicles:
+ Inserted: 152
+ Running: 46
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 23  epsilon: 0.540
+total_time 5891336.0
+***Starting server on port 52830 ***
+Loading net-file from 'maps/network.net.xml' ... done (6ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.60s
+ TraCI-Duration: 0.56s
+ Real time factor: 830.846
+ UPS: 54058.043118
+Vehicles:
+ Inserted: 152
+ Running: 35
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 24  epsilon: 0.520
+total_time 3946036.0
+***Starting server on port 52834 ***
+Loading net-file from 'maps/network.net.xml' ... done (4ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '25' performs emergency braking on lane '2to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Teleporting vehicle '3'; waited too long (yield), lane='4to0_0', time=331.00.
+Warning: Vehicle '3' ends teleporting on edge '0to1', time=331.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.70s
+ TraCI-Duration: 0.64s
+ Real time factor: 717.765
+ UPS: 63388.252149
+Vehicles:
+ Inserted: 152
+ Running: 61
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 25  epsilon: 0.500
+total_time 11911380.0
+***Starting server on port 52837 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.65s
+ TraCI-Duration: 0.60s
+ Real time factor: 767.228
+ UPS: 57509.954058
+Vehicles:
+ Inserted: 152
+ Running: 60
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 26  epsilon: 0.480
+total_time 8030412.0
+***Starting server on port 52840 ***
+Loading net-file from 'maps/network.net.xml' ... done (2ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '19' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=97.00.
+Warning: Teleporting vehicle '54'; waited too long (yield), lane='2to0_0', time=431.00.
+Warning: Vehicle '54' ends teleporting on edge '0to4', time=431.00.
+Warning: Teleporting vehicle '46'; waited too long (yield), lane='4to0_0', time=464.00.
+Warning: Vehicle '46' ends teleporting on edge '0to2', time=464.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.69s
+ TraCI-Duration: 0.64s
+ Real time factor: 721.902
+ UPS: 57844.380403
+Vehicles:
+ Inserted: 152
+ Running: 72
+ Waiting: 0
+ Teleports: 2 (Yield: 2)
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 27  epsilon: 0.460
+total_time 13037212.0
+***Starting server on port 52843 ***
+Loading net-file from 'maps/network.net.xml' ... done (2ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '19' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=81.00.
+Warning: Vehicle '19' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-11.38, offset=0.23), time=81.00.
+Warning: Teleporting vehicle '23'; waited too long (yield), lane='1to0_0', time=376.00.
+Warning: Vehicle '23' ends teleporting on edge '0to2', time=376.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.67s
+ TraCI-Duration: 0.62s
+ Real time factor: 747.761
+ UPS: 59500.000000
+Vehicles:
+ Inserted: 152
+ Running: 58
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Emergency Stops: 1
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 28  epsilon: 0.440
+total_time 10315896.0
+***Starting server on port 52846 ***
+Loading net-file from 'maps/network.net.xml' ... done (5ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '1'; waited too long (yield), lane='2to0_0', time=331.00.
+Warning: Vehicle '1' ends teleporting on edge '0to1', time=331.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.67s
+ TraCI-Duration: 0.62s
+ Real time factor: 745.536
+ UPS: 59772.321429
+Vehicles:
+ Inserted: 152
+ Running: 57
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Retrying in 1 seconds
+epoch: 29  epsilon: 0.420
+total_time 8796248.0
+***Starting server on port 52849 ***
+Loading net-file from 'maps/network.net.xml' ... done (5ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '25' performs emergency braking on lane '2to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Teleporting vehicle '5'; waited too long (yield), lane='1to0_0', time=335.00.
+Warning: Vehicle '5' ends teleporting on edge '0to3', time=335.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.63s
+ TraCI-Duration: 0.59s
+ Real time factor: 796.502
+ UPS: 56397.456280
+Vehicles:
+ Inserted: 152
+ Running: 54
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 30  epsilon: 0.400
+total_time 9157068.0
+***Starting server on port 52852 ***
+Loading net-file from 'maps/network.net.xml' ... done (2ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '19'; waited too long (yield), lane='4to0_0', time=431.00.
+Warning: Vehicle '19' ends teleporting on edge '0to3', time=431.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.75s
+ TraCI-Duration: 0.71s
+ Real time factor: 664.456
+ UPS: 58501.326260
+Vehicles:
+ Inserted: 152
+ Running: 87
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Retrying in 1 seconds
+epoch: 31  epsilon: 0.380
+total_time 13252172.0
+***Starting server on port 52855 ***
+Loading net-file from 'maps/network.net.xml' ... done (5ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '34'; waited too long (yield), lane='2to0_0', time=397.00.
+Warning: Vehicle '34' ends teleporting on edge '0to2', time=397.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.71s
+ TraCI-Duration: 0.66s
+ Real time factor: 705.634
+ UPS: 66146.478873
+Vehicles:
+ Inserted: 152
+ Running: 83
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Retrying in 1 seconds
+epoch: 32  epsilon: 0.360
+total_time 14196556.0
+***Starting server on port 52858 ***
+Loading net-file from 'maps/network.net.xml' ... done (5ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '18' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Vehicle '18' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-12.94, offset=0.80), time=50.00.
+Warning: Vehicle '134' performs emergency braking on lane '3to0_0' with decel=9.00, wished=4.50, severity=1.00, time=177.00.
+Warning: Teleporting vehicle '23'; waited too long (yield), lane='1to0_0', time=387.00.
+Warning: Vehicle '23' ends teleporting on edge '0to2', time=387.00.
+Warning: Teleporting vehicle '43'; waited too long (yield), lane='4to0_0', time=496.00.
+Warning: Vehicle '43' ends teleporting on edge '0to3', time=496.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.67s
+ TraCI-Duration: 0.62s
+ Real time factor: 753.383
+ UPS: 57875.187970
+Vehicles:
+ Inserted: 152
+ Running: 73
+ Waiting: 0
+ Teleports: 2 (Yield: 2)
+ Emergency Stops: 1
+ Emergency Braking: 2
+ Retrying in 1 seconds
+epoch: 33  epsilon: 0.340
+total_time 12550572.0
+***Starting server on port 52861 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '45'; waited too long (yield), lane='1to0_0', time=448.00.
+Warning: Vehicle '45' ends teleporting on edge '0to3', time=448.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.71s
+ TraCI-Duration: 0.66s
+ Real time factor: 704.641
+ UPS: 61886.075949
+Vehicles:
+ Inserted: 152
+ Running: 88
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Retrying in 1 seconds
+epoch: 34  epsilon: 0.320
+total_time 13994244.0
+***Starting server on port 52864 ***
+Loading net-file from 'maps/network.net.xml' ... done (5ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '5'; waited too long (yield), lane='1to0_0', time=335.00.
+Warning: Vehicle '5' ends teleporting on edge '0to3', time=335.00.
+Warning: Teleporting vehicle '11'; waited too long (yield), lane='2to0_0', time=339.00.
+Warning: Vehicle '11' ends teleporting on edge '0to1', time=339.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.75s
+ TraCI-Duration: 0.71s
+ Real time factor: 667.111
+ UPS: 66509.986684
+Vehicles:
+ Inserted: 152
+ Running: 103
+ Waiting: 0
+ Teleports: 2 (Yield: 2)
+ Retrying in 1 seconds
+epoch: 35  epsilon: 0.300
+total_time 17726176.0
+***Starting server on port 52869 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '18' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Vehicle '18' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-12.94, offset=0.80), time=50.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.72s
+ TraCI-Duration: 0.66s
+ Real time factor: 699.721
+ UPS: 64135.474860
+Vehicles:
+ Inserted: 152
+ Running: 85
+ Waiting: 0
+ Emergency Stops: 1
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 36  epsilon: 0.280
+total_time 14758844.0
+***Starting server on port 52872 ***
+Loading net-file from 'maps/network.net.xml' ... done (2ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '5' performs emergency braking on lane '1to0_0' with decel=9.00, wished=4.50, severity=1.00, time=33.00.
+Warning: Vehicle '5' performs emergency stop at the end of lane '1to0_0' because of a red traffic light (decel=-9.58, offset=0.50), time=33.00.
+Warning: Vehicle '18' performs emergency braking on lane '4to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Vehicle '18' performs emergency stop at the end of lane '4to0_0' because of a red traffic light (decel=-12.94, offset=0.80), time=50.00.
+Warning: Teleporting vehicle '34'; waited too long (yield), lane='2to0_0', time=397.00.
+Warning: Vehicle '34' ends teleporting on edge '0to2', time=397.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.69s
+ TraCI-Duration: 0.64s
+ Real time factor: 730.321
+ UPS: 62195.335277
+Vehicles:
+ Inserted: 152
+ Running: 83
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Emergency Stops: 2
+ Emergency Braking: 2
+ Retrying in 1 seconds
+epoch: 37  epsilon: 0.260
+total_time 13033000.0
+***Starting server on port 52875 ***
+Loading net-file from 'maps/network.net.xml' ... done (1ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '25' performs emergency braking on lane '2to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Teleporting vehicle '3'; waited too long (yield), lane='4to0_0', time=331.00.
+Warning: Vehicle '3' ends teleporting on edge '0to1', time=331.00.
+Warning: Teleporting vehicle '5'; waited too long (yield), lane='1to0_0', time=335.00.
+Warning: Vehicle '5' ends teleporting on edge '0to3', time=335.00.
+Warning: Teleporting vehicle '25'; waited too long (yield), lane='2to0_0', time=353.00.
+Warning: Vehicle '25' ends teleporting on edge '0to1', time=353.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.75s
+ TraCI-Duration: 0.70s
+ Real time factor: 671.582
+ UPS: 66776.139410
+Vehicles:
+ Inserted: 152
+ Running: 106
+ Waiting: 0
+ Teleports: 3 (Yield: 3)
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 38  epsilon: 0.240
+total_time 18208116.0
+***Starting server on port 52878 ***
+Loading net-file from 'maps/network.net.xml' ... done (4ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '25' performs emergency braking on lane '2to0_0' with decel=9.00, wished=4.50, severity=1.00, time=49.00.
+Warning: Teleporting vehicle '3'; waited too long (yield), lane='4to0_0', time=331.00.
+Warning: Vehicle '3' ends teleporting on edge '0to1', time=331.00.
+Warning: Teleporting vehicle '25'; waited too long (yield), lane='2to0_0', time=353.00.
+Warning: Vehicle '25' ends teleporting on edge '0to1', time=353.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.75s
+ TraCI-Duration: 0.70s
+ Real time factor: 668.892
+ UPS: 64867.823765
+Vehicles:
+ Inserted: 152
+ Running: 104
+ Waiting: 0
+ Teleports: 2 (Yield: 2)
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 39  epsilon: 0.220
+total_time 16454672.0
+***Starting server on port 52881 ***
+Loading net-file from 'maps/network.net.xml' ... done (2ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '3'; waited too long (yield), lane='4to0_0', time=331.00.
+Warning: Vehicle '3' ends teleporting on edge '0to1', time=331.00.
+Warning: Teleporting vehicle '22'; waited too long (yield), lane='1to0_0', time=397.00.
+Warning: Vehicle '22' ends teleporting on edge '0to1', time=397.00.
+Warning: Teleporting vehicle '71'; waited too long (yield), lane='2to0_0', time=432.00.
+Warning: Vehicle '71' ends teleporting on edge '0to4', time=432.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.72s
+ TraCI-Duration: 0.67s
+ Real time factor: 700.699
+ UPS: 62481.118881
+Vehicles:
+ Inserted: 152
+ Running: 99
+ Waiting: 0
+ Teleports: 3 (Yield: 3)
+ Retrying in 1 seconds
+epoch: 40  epsilon: 0.200
+total_time 17538836.0
+***Starting server on port 52884 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '1'; waited too long (yield), lane='2to0_0', time=331.00.
+Warning: Teleporting vehicle '3'; waited too long (yield), lane='4to0_0', time=331.00.
+Warning: Vehicle '1' ends teleporting on edge '0to1', time=331.00.
+Warning: Vehicle '3' ends teleporting on edge '0to1', time=331.00.
+Warning: Teleporting vehicle '23'; waited too long (yield), lane='1to0_0', time=387.00.
+Warning: Vehicle '23' ends teleporting on edge '0to2', time=387.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.76s
+ TraCI-Duration: 0.71s
+ Real time factor: 663.576
+ UPS: 65863.576159
+Vehicles:
+ Inserted: 152
+ Running: 112
+ Waiting: 0
+ Teleports: 3 (Yield: 3)
+ Retrying in 1 seconds
+epoch: 41  epsilon: 0.180
+total_time 19095188.0
+***Starting server on port 52887 ***
+Loading net-file from 'maps/network.net.xml' ... done (5ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.71s
+ TraCI-Duration: 0.66s
+ Real time factor: 707.627
+ UPS: 63422.316384
+Vehicles:
+ Inserted: 152
+ Running: 88
+ Waiting: 0
+ Retrying in 1 seconds
+epoch: 42  epsilon: 0.160
+total_time 14990584.0
+***Starting server on port 52890 ***
+Loading net-file from 'maps/network.net.xml' ... done (2ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '34'; waited too long (yield), lane='2to0_0', time=397.00.
+Warning: Vehicle '34' ends teleporting on edge '0to2', time=397.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.66s
+ TraCI-Duration: 0.61s
+ Real time factor: 755.656
+ UPS: 60763.197587
+Vehicles:
+ Inserted: 152
+ Running: 84
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Retrying in 1 seconds
+epoch: 43  epsilon: 0.140
+total_time 14202152.0
+***Starting server on port 52895 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Vehicle '5' performs emergency braking on lane '1to0_0' with decel=9.00, wished=4.50, severity=1.00, time=33.00.
+Warning: Vehicle '5' performs emergency stop at the end of lane '1to0_0' because of a red traffic light (decel=-9.58, offset=0.50), time=33.00.
+Warning: Teleporting vehicle '1'; waited too long (yield), lane='2to0_0', time=331.00.
+Warning: Vehicle '1' ends teleporting on edge '0to1', time=331.00.
+Warning: Teleporting vehicle '5'; waited too long (yield), lane='1to0_0', time=334.00.
+Warning: Vehicle '5' ends teleporting on edge '0to3', time=334.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.74s
+ TraCI-Duration: 0.69s
+ Real time factor: 676.113
+ UPS: 66979.757085
+Vehicles:
+ Inserted: 152
+ Running: 106
+ Waiting: 0
+ Teleports: 2 (Yield: 2)
+ Emergency Stops: 1
+ Emergency Braking: 1
+ Retrying in 1 seconds
+epoch: 44  epsilon: 0.120
+total_time 18779200.0
+***Starting server on port 52901 ***
+Loading net-file from 'maps/network.net.xml' ... done (6ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '1'; waited too long (yield), lane='2to0_0', time=331.00.
+Warning: Vehicle '1' ends teleporting on edge '0to1', time=331.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.70s
+ TraCI-Duration: 0.66s
+ Real time factor: 712.66
+ UPS: 63559.032717
+Vehicles:
+ Inserted: 152
+ Running: 91
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Retrying in 1 seconds
+epoch: 45  epsilon: 0.100
+total_time 14291468.0
+***Starting server on port 52904 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '0'; waited too long (yield), lane='3to0_0', time=329.00.
+Warning: Vehicle '0' ends teleporting on edge '0to1', time=329.00.
+Warning: Teleporting vehicle '1'; waited too long (yield), lane='2to0_0', time=331.00.
+Warning: Vehicle '1' ends teleporting on edge '0to1', time=331.00.
+Warning: Teleporting vehicle '32'; waited too long (yield), lane='4to0_0', time=400.00.
+Warning: Vehicle '32' ends teleporting on edge '0to4', time=400.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.70s
+ TraCI-Duration: 0.66s
+ Real time factor: 712.66
+ UPS: 62620.199147
+Vehicles:
+ Inserted: 152
+ Running: 97
+ Waiting: 0
+ Teleports: 3 (Yield: 3)
+ Retrying in 1 seconds
+epoch: 46  epsilon: 0.080
+total_time 16314992.0
+***Starting server on port 52907 ***
+Loading net-file from 'maps/network.net.xml' ... done (5ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '3'; waited too long (yield), lane='4to0_0', time=331.00.
+Warning: Vehicle '3' ends teleporting on edge '0to1', time=331.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.71s
+ TraCI-Duration: 0.66s
+ Real time factor: 706.629
+ UPS: 62713.681241
+Vehicles:
+ Inserted: 152
+ Running: 91
+ Waiting: 0
+ Teleports: 1 (Yield: 1)
+ Retrying in 1 seconds
+epoch: 47  epsilon: 0.060
+total_time 14514312.0
+***Starting server on port 52910 ***
+Loading net-file from 'maps/network.net.xml' ... done (3ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '1'; waited too long (yield), lane='2to0_0', time=331.00.
+Warning: Teleporting vehicle '3'; waited too long (yield), lane='4to0_0', time=331.00.
+Warning: Vehicle '1' ends teleporting on edge '0to1', time=331.00.
+Warning: Vehicle '3' ends teleporting on edge '0to1', time=331.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.68s
+ TraCI-Duration: 0.63s
+ Real time factor: 732.456
+ UPS: 60885.964912
+Vehicles:
+ Inserted: 152
+ Running: 76
+ Waiting: 0
+ Teleports: 2 (Yield: 2)
+ Retrying in 1 seconds
+epoch: 48  epsilon: 0.050
+total_time 13863024.0
+***Starting server on port 52913 ***
+Loading net-file from 'maps/network.net.xml' ... done (4ms).
+Loading route-files incrementally from 'maps/routes.rou.xml'
+Loading done.
+Simulation version 1.26.0 started with time: 0.00.
+Warning: Teleporting vehicle '0'; waited too long (yield), lane='3to0_0', time=329.00.
+Warning: Vehicle '0' ends teleporting on edge '0to1', time=329.00.
+Warning: Teleporting vehicle '1'; waited too long (yield), lane='2to0_0', time=331.00.
+Warning: Teleporting vehicle '3'; waited too long (yield), lane='4to0_0', time=331.00.
+Warning: Vehicle '1' ends teleporting on edge '0to1', time=331.00.
+Warning: Vehicle '3' ends teleporting on edge '0to1', time=331.00.
+Simulation ended at time: 501.00.
+Reason: TraCI requested termination.
+Performance:
+ Duration: 0.74s
+ TraCI-Duration: 0.69s
+ Real time factor: 675.202
+ UPS: 64154.986523
+Vehicles:
+ Inserted: 152
+ Running: 106
+ Waiting: 0
+ Teleports: 3 (Yield: 3)
+ Retrying in 1 seconds
+epoch: 49  epsilon: 0.050
+total_time 17669284.0

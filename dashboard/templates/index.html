@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RL Traffic Control System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e1a;
+            --panel: #111827;
+            --panel2: #1a2235;
+            --border: #1e3a5f;
+            --accent: #00d4ff;
+            --accent2: #7c3aed;
+            --green: #00ff88;
+            --red: #ff3b5c;
+            --yellow: #ffd600;
+            --text: #e2e8f0;
+            --muted: #64748b;
+            --font-mono: 'Share Tech Mono', monospace;
+            --font-main: 'Exo 2', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 24px 0 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p { color: var(--muted); font-family: var(--font-mono); font-size: 0.8rem; margin-top: 4px; letter-spacing: 0.15em; }
+
+        /* Top bar */
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+        }
+        .status-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--red);
+            box-shadow: 0 0 8px var(--red);
+        }
+        .status-dot.active { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+        .status-text { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); }
+        .status-text span { color: var(--accent); }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            border: none;
+            font-family: var(--font-main);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        .btn-start { background: var(--green); color: #000; margin-left: auto; }
+        .btn-start:hover { filter: brightness(1.15); transform: translateY(-1px); }
+        .btn-stop { background: var(--red); color: #fff; }
+        .btn-stop:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+        /* Main grid layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 420px 1fr;
+            grid-template-rows: auto auto;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Lane panels (left/right) */
+        .lane-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .lane-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .lane-arrow {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; font-weight: bold;
+        }
+        .lane-title { font-weight: 700; font-size: 1.1rem; letter-spacing: 0.05em; }
+        .tl-badge {
+            margin-left: auto;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+        .tl-green { background: rgba(0,255,136,0.15); color: var(--green); border: 1px solid var(--green); box-shadow: 0 0 10px rgba(0,255,136,0.2); }
+        .tl-red   { background: rgba(255,59,92,0.15);  color: var(--red);   border: 1px solid var(--red);   box-shadow: 0 0 10px rgba(255,59,92,0.2); }
+        .tl-yellow{ background: rgba(255,214,0,0.15);  color: var(--yellow);border: 1px solid var(--yellow); }
+
+        .lane-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .metric-box {
+            background: var(--panel2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+        .metric-val { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+        .metric-lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+
+        .congestion-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+        .congestion-row span:first-child { color: var(--muted); }
+        .cong-bar-wrap { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+        .cong-bar { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        .cong-low  { background: var(--green); }
+        .cong-med  { background: var(--yellow); }
+        .cong-high { background: var(--red); }
+
+        .vehicle-scroll {
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+        }
+        .vehicle-scroll::-webkit-scrollbar { width: 4px; }
+        .vehicle-scroll::-webkit-scrollbar-track { background: transparent; }
+        .vehicle-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .v-item { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--muted); }
+        .v-item span:first-child { color: var(--text); }
+
+        /* Center intersection */
+        .intersection-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            grid-row: 1 / 3;
+        }
+
+        .intersection-title {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        /* SVG Intersection */
+        .intersection-svg { width: 100%; max-width: 340px; }
+
+        /* RL Info Box */
+        .rl-box {
+            width: 100%;
+            background: var(--panel2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .rl-box-title {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent2);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .rl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.82rem; }
+        .rl-row .lbl { color: var(--muted); font-family: var(--font-mono); font-size: 0.75rem; }
+        .rl-row .val { color: var(--text); font-weight: 600; font-family: var(--font-mono); }
+        .rl-row .val.highlight { color: var(--accent); }
+        .rl-row .val.green { color: var(--green); }
+
+        /* Q-value bars */
+        .qval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+        .qval-item { background: var(--panel); border-radius: 6px; padding: 8px; text-align: center; }
+        .qval-label { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); margin-bottom: 4px; }
+        .qval-value { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; }
+        .qval-best { color: var(--green); }
+        .qval-norm { color: var(--muted); }
+
+        /* Bottom stats */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-val { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+        .stat-lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+        /* Notification */
+        .notif {
+            position: fixed; top: 20px; right: 20px;
+            padding: 12px 20px; border-radius: 8px;
+            font-family: var(--font-mono); font-size: 0.82rem;
+            transform: translateX(120%); transition: transform 0.3s;
+            z-index: 100; max-width: 320px;
+        }
+        .notif.show { transform: translateX(0); }
+        .notif-info    { background: #1e3a5f; border: 1px solid var(--accent); color: var(--accent); }
+        .notif-success { background: #0d2e1a; border: 1px solid var(--green); color: var(--green); }
+        .notif-error   { background: #2e0d0d; border: 1px solid var(--red); color: var(--red); }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .main-grid { grid-template-columns: 1fr 1fr; }
+            .intersection-panel { grid-column: 1 / 3; grid-row: auto; }
+        }
+        @media (max-width: 700px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+            .intersection-panel { grid-column: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Header -->
+    <div class="header">
+        <h1>🚦 RL Traffic Control System</h1>
+        <p>DEEP Q-NETWORK · SINGLE INTERSECTION · REAL-TIME OPTIMIZATION</p>
+    </div>
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="status-dot" id="status-dot"></div>
+        <div class="status-text">SIM STATUS: <span id="status-text">OFFLINE</span></div>
+        <div class="status-text" style="margin-left:16px">EPOCH: <span id="hdr-epoch" style="color:var(--accent)">—</span></div>
+        <div class="status-text" style="margin-left:16px">ε: <span id="hdr-epsilon" style="color:var(--accent2)">—</span></div>
+        <button class="btn btn-start" onclick="startSimulation()">▶ START</button>
+        <button class="btn btn-stop" onclick="stopSimulation()">⏹ STOP</button>
+    </div>
+
+    <!-- Main 3-column grid -->
+    <div class="main-grid">
+
+        <!-- Lane 1 (left) -->
+        <div class="lane-panel">
+            <div class="lane-header">
+                <div class="lane-arrow" style="background:rgba(0,212,255,0.1);color:var(--accent)">↑</div>
+                <span class="lane-title">LANE 1</span>
+                <div class="tl-badge tl-red" id="tl-0">RED</div>
+            </div>
+            <div class="lane-metrics">
+                <div class="metric-box">
+                    <div class="metric-val" id="lane0-count">0</div>
+                    <div class="metric-lbl">Vehicles</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-val" id="lane0-speed">0.0</div>
+                    <div class="metric-lbl">Avg m/s</div>
+                </div>
+            </div>
+            <div>
+                <div class="congestion-row">
+                    <span>Congestion</span>
+                    <span id="lane0-cong-text" style="color:var(--green);font-weight:700;font-size:0.82rem">LOW</span>
+                </div>
+                <div class="cong-bar-wrap"><div class="cong-bar cong-low" id="lane0-cong-bar" style="width:0%"></div></div>
+            </div>
+            <div class="vehicle-scroll" id="lane0-vehicles">
+                <div style="color:var(--muted);text-align:center;padding:8px">No vehicles</div>
+            </div>
+        </div>
+
+        <!-- Center: Intersection + RL -->
+        <div class="intersection-panel">
+            <div class="intersection-title">⬡ INTERSECTION VIEW</div>
+
+            <!-- SVG Intersection -->
+            <svg class="intersection-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+                <!-- Road background -->
+                <rect width="300" height="300" fill="#0a0e1a"/>
+                <!-- Grid lines -->
+                <line x1="0" y1="0" x2="300" y2="300" stroke="#1e3a5f" stroke-width="0.5" opacity="0.3"/>
+                <line x1="300" y1="0" x2="0" y2="300" stroke="#1e3a5f" stroke-width="0.5" opacity="0.3"/>
+
+                <!-- Vertical road -->
+                <rect x="115" y="0" width="70" height="300" fill="#1a2235"/>
+                <line x1="150" y1="0" x2="150" y2="110" stroke="#ffd600" stroke-width="1.5" stroke-dasharray="10,8" opacity="0.5"/>
+                <line x1="150" y1="190" x2="150" y2="300" stroke="#ffd600" stroke-width="1.5" stroke-dasharray="10,8" opacity="0.5"/>
+
+                <!-- Horizontal road -->
+                <rect x="0" y="115" width="300" height="70" fill="#1a2235"/>
+                <line x1="0" y1="150" x2="110" y2="150" stroke="#ffd600" stroke-width="1.5" stroke-dasharray="10,8" opacity="0.5"/>
+                <line x1="190" y1="150" x2="300" y2="150" stroke="#ffd600" stroke-width="1.5" stroke-dasharray="10,8" opacity="0.5"/>
+
+                <!-- Intersection box -->
+                <rect x="115" y="115" width="70" height="70" fill="#1e2d40"/>
+                <rect x="115" y="115" width="70" height="70" fill="none" stroke="#1e3a5f" stroke-width="1"/>
+
+                <!-- Road edge lines -->
+                <line x1="115" y1="0" x2="115" y2="115" stroke="#2a4060" stroke-width="1"/>
+                <line x1="185" y1="0" x2="185" y2="115" stroke="#2a4060" stroke-width="1"/>
+                <line x1="115" y1="185" x2="115" y2="300" stroke="#2a4060" stroke-width="1"/>
+                <line x1="185" y1="185" x2="185" y2="300" stroke="#2a4060" stroke-width="1"/>
+                <line x1="0" y1="115" x2="115" y2="115" stroke="#2a4060" stroke-width="1"/>
+                <line x1="0" y1="185" x2="115" y2="185" stroke="#2a4060" stroke-width="1"/>
+                <line x1="185" y1="115" x2="300" y2="115" stroke="#2a4060" stroke-width="1"/>
+                <line x1="185" y1="185" x2="300" y2="185" stroke="#2a4060" stroke-width="1"/>
+
+                <!-- Traffic light circles - Lane 0 (top) -->
+                <circle cx="150" cy="90" r="12" fill="#1a2235" stroke="#2a4060" stroke-width="1.5"/>
+                <circle cx="150" cy="90" r="8" id="tl-circle-0" fill="#ff3b5c" opacity="0.9"/>
+
+                <!-- Traffic light circles - Lane 1 (right) -->
+                <circle cx="210" cy="150" r="12" fill="#1a2235" stroke="#2a4060" stroke-width="1.5"/>
+                <circle cx="210" cy="150" r="8" id="tl-circle-1" fill="#ff3b5c" opacity="0.9"/>
+
+                <!-- Traffic light circles - Lane 2 (bottom) -->
+                <circle cx="150" cy="210" r="12" fill="#1a2235" stroke="#2a4060" stroke-width="1.5"/>
+                <circle cx="150" cy="210" r="8" id="tl-circle-2" fill="#ff3b5c" opacity="0.9"/>
+
+                <!-- Traffic light circles - Lane 3 (left) -->
+                <circle cx="90" cy="150" r="12" fill="#1a2235" stroke="#2a4060" stroke-width="1.5"/>
+                <circle cx="90" cy="150" r="8" id="tl-circle-3" fill="#ff3b5c" opacity="0.9"/>
+
+                <!-- Lane labels -->
+                <text x="150" y="30" text-anchor="middle" fill="#64748b" font-size="10" font-family="Share Tech Mono">LANE 1</text>
+                <text x="270" y="154" text-anchor="middle" fill="#64748b" font-size="10" font-family="Share Tech Mono">LANE 2</text>
+                <text x="150" y="285" text-anchor="middle" fill="#64748b" font-size="10" font-family="Share Tech Mono">LANE 3</text>
+                <text x="30" y="154" text-anchor="middle" fill="#64748b" font-size="10" font-family="Share Tech Mono">LANE 4</text>
+
+                <!-- Arrow directions -->
+                <text x="150" y="58" text-anchor="middle" fill="#00d4ff" font-size="14" opacity="0.6">↑</text>
+                <text x="248" y="155" text-anchor="middle" fill="#00d4ff" font-size="14" opacity="0.6">→</text>
+                <text x="150" y="262" text-anchor="middle" fill="#00d4ff" font-size="14" opacity="0.6">↓</text>
+                <text x="52" y="155" text-anchor="middle" fill="#00d4ff" font-size="14" opacity="0.6">←</text>
+
+                <!-- Vehicle dots (dynamically added by JS) -->
+                <g id="vehicle-dots"></g>
+
+                <!-- Active lane highlight -->
+                <rect id="active-lane-highlight" x="115" y="0" width="70" height="115" fill="rgba(0,255,136,0.05)" rx="2" opacity="0"/>
+            </svg>
+
+            <!-- RL Agent Info -->
+            <div class="rl-box">
+                <div class="rl-box-title">◈ DQN AGENT STATUS</div>
+                <div class="rl-row">
+                    <span class="lbl">DECISION</span>
+                    <span class="val highlight" id="rl-action">—</span>
+                </div>
+                <div class="rl-row">
+                    <span class="lbl">WAITING TIME</span>
+                    <span class="val" id="rl-wait">—</span>
+                </div>
+                <div class="rl-row">
+                    <span class="lbl">EPOCH / STEP</span>
+                    <span class="val" id="rl-epoch-step">—</span>
+                </div>
+                <div class="rl-row">
+                    <span class="lbl">EXPLORATION ε</span>
+                    <span class="val green" id="rl-epsilon">—</span>
+                </div>
+                <div class="rl-row">
+                    <span class="lbl">MODE</span>
+                    <span class="val" id="rl-mode">—</span>
+                </div>
+                <!-- Q-values -->
+                <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--muted);margin-top:12px;margin-bottom:6px;letter-spacing:0.15em">Q-VALUES (per lane)</div>
+                <div class="qval-grid" id="qval-grid">
+                    <div class="qval-item"><div class="qval-label">L1</div><div class="qval-value qval-norm" id="qv-0">—</div></div>
+                    <div class="qval-item"><div class="qval-label">L2</div><div class="qval-value qval-norm" id="qv-1">—</div></div>
+                    <div class="qval-item"><div class="qval-label">L3</div><div class="qval-value qval-norm" id="qv-2">—</div></div>
+                    <div class="qval-item"><div class="qval-label">L4</div><div class="qval-value qval-norm" id="qv-3">—</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lane 2 (right) -->
+        <div class="lane-panel">
+            <div class="lane-header">
+                <div class="lane-arrow" style="background:rgba(124,58,237,0.1);color:var(--accent2)">→</div>
+                <span class="lane-title">LANE 2</span>
+                <div class="tl-badge tl-red" id="tl-1">RED</div>
+            </div>
+            <div class="lane-metrics">
+                <div class="metric-box">
+                    <div class="metric-val" id="lane1-count">0</div>
+                    <div class="metric-lbl">Vehicles</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-val" id="lane1-speed">0.0</div>
+                    <div class="metric-lbl">Avg m/s</div>
+                </div>
+            </div>
+            <div>
+                <div class="congestion-row">
+                    <span>Congestion</span>
+                    <span id="lane1-cong-text" style="color:var(--green);font-weight:700;font-size:0.82rem">LOW</span>
+                </div>
+                <div class="cong-bar-wrap"><div class="cong-bar cong-low" id="lane1-cong-bar" style="width:0%"></div></div>
+            </div>
+            <div class="vehicle-scroll" id="lane1-vehicles">
+                <div style="color:var(--muted);text-align:center;padding:8px">No vehicles</div>
+            </div>
+        </div>
+
+        <!-- Lane 3 (bottom-left) -->
+        <div class="lane-panel">
+            <div class="lane-header">
+                <div class="lane-arrow" style="background:rgba(0,255,136,0.1);color:var(--green)">↓</div>
+                <span class="lane-title">LANE 3</span>
+                <div class="tl-badge tl-red" id="tl-2">RED</div>
+            </div>
+            <div class="lane-metrics">
+                <div class="metric-box">
+                    <div class="metric-val" id="lane2-count">0</div>
+                    <div class="metric-lbl">Vehicles</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-val" id="lane2-speed">0.0</div>
+                    <div class="metric-lbl">Avg m/s</div>
+                </div>
+            </div>
+            <div>
+                <div class="congestion-row">
+                    <span>Congestion</span>
+                    <span id="lane2-cong-text" style="color:var(--green);font-weight:700;font-size:0.82rem">LOW</span>
+                </div>
+                <div class="cong-bar-wrap"><div class="cong-bar cong-low" id="lane2-cong-bar" style="width:0%"></div></div>
+            </div>
+            <div class="vehicle-scroll" id="lane2-vehicles">
+                <div style="color:var(--muted);text-align:center;padding:8px">No vehicles</div>
+            </div>
+        </div>
+
+        <!-- Lane 4 (bottom-right) -->
+        <div class="lane-panel">
+            <div class="lane-header">
+                <div class="lane-arrow" style="background:rgba(255,214,0,0.1);color:var(--yellow)">←</div>
+                <span class="lane-title">LANE 4</span>
+                <div class="tl-badge tl-red" id="tl-3">RED</div>
+            </div>
+            <div class="lane-metrics">
+                <div class="metric-box">
+                    <div class="metric-val" id="lane3-count">0</div>
+                    <div class="metric-lbl">Vehicles</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-val" id="lane3-speed">0.0</div>
+                    <div class="metric-lbl">Avg m/s</div>
+                </div>
+            </div>
+            <div>
+                <div class="congestion-row">
+                    <span>Congestion</span>
+                    <span id="lane3-cong-text" style="color:var(--green);font-weight:700;font-size:0.82rem">LOW</span>
+                </div>
+                <div class="cong-bar-wrap"><div class="cong-bar cong-low" id="lane3-cong-bar" style="width:0%"></div></div>
+            </div>
+            <div class="vehicle-scroll" id="lane3-vehicles">
+                <div style="color:var(--muted);text-align:center;padding:8px">No vehicles</div>
+            </div>
+        </div>
+
+    </div><!-- end main-grid -->
+
+    <!-- Stats bar -->
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-val" id="stat-total">0</div>
+            <div class="stat-lbl">Total Vehicles</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="stat-passed">0</div>
+            <div class="stat-lbl">Vehicles Passed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="stat-step">0</div>
+            <div class="stat-lbl">Sim Step</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="stat-wait" style="color:var(--red)">0</div>
+            <div class="stat-lbl">Total Wait (s)</div>
+        </div>
+    </div>
+
+</div><!-- end container -->
+
+<!-- Notification -->
+<div class="notif" id="notif"></div>
+
+<script>
+// ── Lane name mapping from SUMO route IDs ─────────────────────────────────────
+// Our network has lanes: 4to0, 2to0, 3to0, 1to0 → map to Lane 0,1,2,3
+// We'll use the rl_info.lane_vehicles array directly (already split by lane)
+
+let lastData = null;
+let simRunning = false;
+
+// ── Traffic light colors ──────────────────────────────────────────────────────
+const TL_COLORS = { G: '#00ff88', g: '#00ff88', r: '#ff3b5c', R: '#ff3b5c', y: '#ffd600', Y: '#ffd600' };
+const TL_CLASS  = { G: 'tl-green', g: 'tl-green', r: 'tl-red', R: 'tl-red', y: 'tl-yellow', Y: 'tl-yellow' };
+const TL_TEXT   = { G: 'GREEN', g: 'GREEN', r: 'RED', R: 'RED', y: 'YELLOW', Y: 'YELLOW' };
+
+// ── Intersection highlight positions ─────────────────────────────────────────
+const LANE_HIGHLIGHTS = [
+    { x: 115, y: 0,   w: 70,  h: 115 },  // top
+    { x: 185, y: 115, w: 115, h: 70  },  // right
+    { x: 115, y: 185, w: 70,  h: 115 },  // bottom
+    { x: 0,   y: 115, w: 115, h: 70  },  // left
+];
+
+// ── Vehicle dot positions on SVG (lanes approach from 4 directions) ───────────
+function getVehicleDotPos(laneIdx, vIdx, total) {
+    const spread = Math.min(total, 8);
+    const t = spread <= 1 ? 0.5 : vIdx / (spread - 1);
+    switch(laneIdx) {
+        case 0: return { x: 132 + t*36, y: 20 + vIdx*10 };
+        case 1: return { x: 280 - vIdx*10, y: 132 + t*36 };
+        case 2: return { x: 132 + t*36, y: 280 - vIdx*10 };
+        case 3: return { x: 20 + vIdx*10, y: 132 + t*36 };
+    }
+}
+
+// ── Update traffic lights ─────────────────────────────────────────────────────
+function updateTrafficLights(tlData) {
+    if (!tlData || Object.keys(tlData).length === 0) return;
+    const mainTl = Object.values(tlData)[0];
+    const state = mainTl.state || '';
+    // Each signal group: 4 signals per lane (state length 16, 4 per group)
+    const sigPerGroup = Math.floor(state.length / 4);
+
+    for (let i = 0; i < 4; i++) {
+        const ch = state[i * sigPerGroup] || 'r';
+        // Badge
+        const badge = document.getElementById(`tl-${i}`);
+        if (badge) {
+            badge.textContent = TL_TEXT[ch] || 'RED';
+            badge.className = `tl-badge ${TL_CLASS[ch] || 'tl-red'}`;
+        }
+        // SVG circle
+        const circle = document.getElementById(`tl-circle-${i}`);
+        if (circle) circle.setAttribute('fill', TL_COLORS[ch] || '#ff3b5c');
+    }
+}
+
+// ── Update lane panels ────────────────────────────────────────────────────────
+function updateLanes(data) {
+    const rlInfo = data.rl_info || {};
+    const laneVehicles = rlInfo.lane_vehicles || [];
+    const allVehicles = data.vehicles || [];
+
+    // Distribute vehicles across lanes using rl_info.lane_vehicles counts
+    // lane_vehicles[i] = count of vehicles on lane i
+    for (let i = 0; i < 4; i++) {
+        const count = laneVehicles[i] || 0;
+        // Estimate speed: use overall avg as proxy
+        const totalV = allVehicles.length;
+        const avgSpd = totalV > 0 ? (allVehicles.reduce((s,v)=>s+v.speed,0)/totalV) : 0;
+
+        document.getElementById(`lane${i}-count`).textContent = count;
+        document.getElementById(`lane${i}-speed`).textContent = avgSpd.toFixed(1);
+
+        // Congestion
+        let level = 'LOW', cls = 'cong-low', color = 'var(--green)', pct = Math.min(100, count * 8);
+        if (count > 15 || avgSpd < 3) { level = 'HIGH'; cls = 'cong-high'; color = 'var(--red)'; pct = Math.min(100, 60 + count*2); }
+        else if (count > 7 || avgSpd < 8) { level = 'MED'; cls = 'cong-med'; color = 'var(--yellow)'; pct = Math.min(100, 30 + count*3); }
+
+        document.getElementById(`lane${i}-cong-text`).textContent = level;
+        document.getElementById(`lane${i}-cong-text`).style.color = color;
+        const bar = document.getElementById(`lane${i}-cong-bar`);
+        bar.style.width = pct + '%';
+        bar.className = `cong-bar ${cls}`;
+
+        // Vehicle list (show a few from allVehicles as sample)
+        const listEl = document.getElementById(`lane${i}-vehicles`);
+        const slice = allVehicles.slice(i * Math.floor(allVehicles.length/4), (i+1) * Math.floor(allVehicles.length/4)).slice(0,6);
+        if (count === 0 || slice.length === 0) {
+            listEl.innerHTML = '<div style="color:var(--muted);text-align:center;padding:8px;font-family:var(--font-mono);font-size:0.72rem">No vehicles</div>';
+        } else {
+            listEl.innerHTML = slice.map(v =>
+                `<div class="v-item"><span>#${v.id}</span><span>${v.speed} m/s</span></div>`
+            ).join('');
+        }
+    }
+}
+
+// ── Update SVG vehicle dots ───────────────────────────────────────────────────
+function updateVehicleDots(data) {
+    const dotsEl = document.getElementById('vehicle-dots');
+    const laneVehicles = (data.rl_info || {}).lane_vehicles || [];
+    let html = '';
+    for (let i = 0; i < 4; i++) {
+        const count = Math.min(laneVehicles[i] || 0, 8);
+        for (let j = 0; j < count; j++) {
+            const pos = getVehicleDotPos(i, j, count);
+            html += `<circle cx="${pos.x}" cy="${pos.y}" r="3" fill="#00d4ff" opacity="0.7"/>`;
+        }
+    }
+    dotsEl.innerHTML = html;
+}
+
+// ── Update active lane highlight on SVG ──────────────────────────────────────
+function updateActiveLane(action) {
+    const h = document.getElementById('active-lane-highlight');
+    if (action === null || action === undefined) { h.style.opacity = '0'; return; }
+    const pos = LANE_HIGHLIGHTS[action] || LANE_HIGHLIGHTS[0];
+    h.setAttribute('x', pos.x);
+    h.setAttribute('y', pos.y);
+    h.setAttribute('width', pos.w);
+    h.setAttribute('height', pos.h);
+    h.style.opacity = '1';
+}
+
+// ── Update RL info panel ──────────────────────────────────────────────────────
+function updateRLInfo(rlInfo) {
+    if (!rlInfo || !rlInfo.action_name) return;
+    document.getElementById('rl-action').textContent = rlInfo.action_name || '—';
+    document.getElementById('rl-wait').textContent = rlInfo.waiting_time ? rlInfo.waiting_time + 's' : '—';
+    document.getElementById('rl-epoch-step').textContent = `${rlInfo.epoch ?? '—'} / ${rlInfo.step ?? '—'}`;
+    document.getElementById('rl-epsilon').textContent = rlInfo.epsilon ?? '—';
+    document.getElementById('rl-mode').textContent = (rlInfo.mode || '—').toUpperCase();
+    document.getElementById('hdr-epoch').textContent = rlInfo.epoch ?? '—';
+    document.getElementById('hdr-epsilon').textContent = rlInfo.epsilon ?? '—';
+
+    // Q-values
+    const qvals = rlInfo.q_values || [];
+    const maxQ = Math.max(...qvals);
+    for (let i = 0; i < 4; i++) {
+        const el = document.getElementById(`qv-${i}`);
+        if (!el) continue;
+        const q = qvals[i];
+        if (q === undefined) { el.textContent = '—'; el.className = 'qval-value qval-norm'; continue; }
+        el.textContent = q.toFixed(2);
+        el.className = `qval-value ${q === maxQ ? 'qval-best' : 'qval-norm'}`;
+    }
+
+    updateActiveLane(rlInfo.action);
+}
+
+// ── Update stats bar ──────────────────────────────────────────────────────────
+function updateStats(data) {
+    document.getElementById('stat-total').textContent = (data.vehicles || []).length;
+    document.getElementById('stat-passed').textContent = (data.statistics || {}).total_vehicles_passed || 0;
+    document.getElementById('stat-step').textContent = data.step || 0;
+    document.getElementById('stat-wait').textContent = ((data.rl_info || {}).total_waiting_time || 0).toLocaleString();
+}
+
+// ── Main update loop ──────────────────────────────────────────────────────────
+async function updateData() {
+    try {
+        const res = await fetch('/api/data');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        updateTrafficLights(data.traffic_lights || {});
+        updateLanes(data);
+        updateVehicleDots(data);
+        updateRLInfo(data.rl_info || {});
+        updateStats(data);
+    } catch(e) {}
+}
+
+async function checkStatus() {
+    try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        simRunning = data.running;
+        const dot = document.getElementById('status-dot');
+        const txt = document.getElementById('status-text');
+        if (data.running) {
+            dot.classList.add('active');
+            txt.textContent = 'RUNNING';
+            txt.style.color = 'var(--green)';
+        } else {
+            dot.classList.remove('active');
+            txt.textContent = 'OFFLINE';
+            txt.style.color = 'var(--red)';
+        }
+    } catch(e) {}
+}
+
+async function startSimulation() {
+    try {
+        const res = await fetch('/api/start', { method: 'POST', headers: {'Content-Type':'application/json'} });
+        const data = await res.json();
+        showNotif(data.message, 'success');
+    } catch(e) { showNotif('Failed to start', 'error'); }
+}
+
+async function stopSimulation() {
+    try {
+        const res = await fetch('/api/stop', { method: 'POST', headers: {'Content-Type':'application/json'} });
+        const data = await res.json();
+        showNotif(data.message, 'info');
+    } catch(e) { showNotif('Failed to stop', 'error'); }
+}
+
+function showNotif(msg, type='info') {
+    const el = document.getElementById('notif');
+    el.textContent = msg;
+    el.className = `notif notif-${type} show`;
+    setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+setInterval(updateData, 600);
+setInterval(checkStatus, 2000);
+checkStatus();
+updateData();
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Model checkpoints (optional if huge)
+*.pt
+*.pth
+
+# SUMO temporary/output files
+*.xml.gz

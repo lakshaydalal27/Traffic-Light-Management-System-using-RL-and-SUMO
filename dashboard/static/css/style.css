@@ -1,0 +1,82 @@
+/* Custom styles for components not easily handled by Tailwind */
+
+.direction-card {
+    @apply bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-xl;
+}
+
+.btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700 active:scale-95;
+}
+
+.btn-success {
+    @apply bg-green-600 text-white hover:bg-green-700 active:scale-95;
+}
+
+.btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 active:scale-95;
+}
+
+.status-connected {
+    @apply bg-gradient-to-r from-green-500 to-green-600 text-white;
+}
+
+.status-disconnected {
+    @apply bg-gradient-to-r from-red-500 to-red-600 text-white;
+}
+
+.congestion-low {
+    @apply bg-gradient-to-r from-green-400 to-green-500;
+}
+
+.congestion-medium {
+    @apply bg-gradient-to-r from-yellow-400 to-orange-500;
+}
+
+.congestion-high {
+    @apply bg-gradient-to-r from-orange-500 to-red-500;
+}
+
+.vehicle-item {
+    @apply bg-white/80 rounded-lg p-2 mb-2 text-sm border-l-4 border-gray-300 shadow-sm;
+}
+
+.metric-card {
+    @apply transform transition-all duration-200 hover:scale-105;
+}
+
+/* Scrollbar styling */
+.vehicle-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.vehicle-list::-webkit-scrollbar-track {
+    @apply bg-gray-200 rounded-full;
+}
+
+.vehicle-list::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full;
+}
+
+.vehicle-list::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+}
+
+/* Animation for status indicator */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .5;
+    }
+}
+
+/* Loading animation */
+.loading {
+    @apply animate-pulse;
+}
+
+/* Custom gradient backgrounds */
+.bg-custom-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
