@@ -1,10 +1,24 @@
+"""
+train_v2.py — Improved Double DQN for SUMO Traffic Signal Control
+
+Improvements over baseline train.py:
+1. Double DQN (separate target network) — fixes Q-value chasing
+2. Soft target updates (Polyak averaging, τ=0.005)
+3. Richer state (12 dims: counts + waiting times + current phase one-hot)
+4. Delta-reward (change in waiting time — better credit assignment)
+5. Huber loss instead of MSE — robust to outlier rewards
+6. Gradient clipping — training stability
+7. Proper (s, a, r, s') tuple alignment (carries over from train.py fix)
+8. Warmup phase before any learning starts
+"""
+
 from __future__ import absolute_import
 from __future__ import print_function
 
 import os
 import sys
 import optparse
-import random
+import copy
 import numpy as np
 import torch
 import torch.optim as optim
@@ -12,32 +26,35 @@ import torch.nn.functional as F
 import torch.nn as nn
 import matplotlib.pyplot as plt
 
-# we need to import python modules from the $SUMO_HOME/tools directory
+# SUMO setup
 if "SUMO_HOME" in os.environ:
     tools = os.path.join(os.environ["SUMO_HOME"], "tools")
     sys.path.append(tools)
 else:
     sys.exit("please declare environment variable 'SUMO_HOME'")
 
-from sumolib import checkBinary  # noqa
-import traci  # noqa
+from sumolib import checkBinary
+import traci
 
+# ── Helper functions ─────────────────────────────────────────────────────────
 
 def get_vehicle_numbers(lanes):
-    vehicle_per_lane = dict()
+    out = dict()
     for l in lanes:
-        vehicle_per_lane[l] = 0
-        for k in traci.lane.getLastStepVehicleIDs(l):
-            if traci.vehicle.getLanePosition(k) > 10:
-                vehicle_per_lane[l] += 1
-    return vehicle_per_lane
+        out[l] = 0
+        for vid in traci.lane.getLastStepVehicleIDs(l):
+            if traci.vehicle.getLanePosition(vid) > 10:
+                out[l] += 1
+    return out
 
 
-def get_waiting_time(lanes):
-    waiting_time = 0
-    for lane in lanes:
-        waiting_time += traci.lane.getWaitingTime(lane)
-    return waiting_time
+def get_waiting_time_per_lane(unique_lanes):
+    """Return per-lane waiting time (not summed) for richer state."""
+    return {l: traci.lane.getWaitingTime(l) for l in unique_lanes}
+
+
+def total_waiting(unique_lanes):
+    return sum(traci.lane.getWaitingTime(l) for l in unique_lanes)
 
 
 def phaseDuration(junction, phase_time, phase_state):
@@ -45,319 +62,356 @@ def phaseDuration(junction, phase_time, phase_state):
     traci.trafficlight.setPhaseDuration(junction, phase_time)
 
 
-class Model(nn.Module):
-    def __init__(self, lr, input_dims, fc1_dims, fc2_dims, n_actions):
-        super(Model, self).__init__()
-        self.lr = lr
-        self.input_dims = input_dims
-        self.fc1_dims = fc1_dims
-        self.fc2_dims = fc2_dims
-        self.n_actions = n_actions
+# ── Network ──────────────────────────────────────────────────────────────────
 
-        self.linear1 = nn.Linear(self.input_dims, self.fc1_dims)
-        self.linear2 = nn.Linear(self.fc1_dims, self.fc2_dims)
-        self.linear3 = nn.Linear(self.fc2_dims, self.n_actions)
+class QNet(nn.Module):
+    def __init__(self, input_dims, n_actions, fc1=128, fc2=128):
+        super().__init__()
+        self.fc1 = nn.Linear(input_dims, fc1)
+        self.fc2 = nn.Linear(fc1, fc2)
+        self.out = nn.Linear(fc2, n_actions)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
-        self.loss = nn.MSELoss()
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.to(self.device)
-
-    def forward(self, state):
-        x = F.relu(self.linear1(state))
-        x = F.relu(self.linear2(x))
-        actions = self.linear3(x)
-        return actions
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        return self.out(x)
 
 
-class Agent:
-    def __init__(
-        self,
-        gamma,
-        epsilon,
-        lr,
-        input_dims,
-        fc1_dims,
-        fc2_dims,
-        batch_size,
-        n_actions,
-        junctions,
-        max_memory_size=50000,
-        epsilon_dec=0.02,   # FIX: decay per EPOCH not per step
-        epsilon_end=0.05,
-    ):
-        self.gamma = gamma
-        self.epsilon = epsilon
-        self.lr = lr
-        self.batch_size = batch_size
-        self.input_dims = input_dims
-        self.fc1_dims = fc1_dims
-        self.fc2_dims = fc2_dims
-        self.n_actions = n_actions
-        self.action_space = [i for i in range(n_actions)]
-        self.junctions = junctions
-        self.max_mem = max_memory_size
-        self.epsilon_dec = epsilon_dec
+# ── Double DQN Agent ─────────────────────────────────────────────────────────
+
+class DoubleDQNAgent:
+    def __init__(self, input_dims, n_actions,
+                 lr=5e-4, gamma=0.99,
+                 epsilon_start=1.0, epsilon_end=0.05, epsilon_decay=0.995,
+                 batch_size=128, memory_size=100000,
+                 tau=0.005, warmup_steps=1000):
+        self.input_dims  = input_dims
+        self.n_actions   = n_actions
+        self.gamma       = gamma
+        self.epsilon     = epsilon_start
         self.epsilon_end = epsilon_end
+        self.epsilon_decay = epsilon_decay
+        self.batch_size  = batch_size
+        self.tau         = tau
+        self.warmup_steps = warmup_steps
 
-        self.Q_eval = Model(
-            self.lr, self.input_dims, self.fc1_dims, self.fc2_dims, self.n_actions
-        )
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # FIX: single shared replay buffer (not per junction, simpler & more stable)
-        self.state_memory     = np.zeros((self.max_mem, self.input_dims), dtype=np.float32)
-        self.new_state_memory = np.zeros((self.max_mem, self.input_dims), dtype=np.float32)
-        self.reward_memory    = np.zeros(self.max_mem, dtype=np.float32)
-        self.action_memory    = np.zeros(self.max_mem, dtype=np.int32)
-        self.terminal_memory  = np.zeros(self.max_mem, dtype=np.bool_)
-        self.mem_cntr         = 0
+        # Online + target networks
+        self.q_online = QNet(input_dims, n_actions).to(self.device)
+        self.q_target = copy.deepcopy(self.q_online).to(self.device)
+        self.q_target.eval()
+        self.optim    = optim.Adam(self.q_online.parameters(), lr=lr)
 
-    def store_transition(self, state, state_, action, reward, done, junction=0):
-        index = self.mem_cntr % self.max_mem
-        self.state_memory[index]     = state
-        self.new_state_memory[index] = state_
-        self.reward_memory[index]    = reward
-        self.terminal_memory[index]  = done
-        self.action_memory[index]    = action
+        # Replay buffer
+        self.max_mem = memory_size
+        self.state_mem      = np.zeros((self.max_mem, input_dims), dtype=np.float32)
+        self.next_state_mem = np.zeros((self.max_mem, input_dims), dtype=np.float32)
+        self.action_mem     = np.zeros(self.max_mem, dtype=np.int64)
+        self.reward_mem     = np.zeros(self.max_mem, dtype=np.float32)
+        self.done_mem       = np.zeros(self.max_mem, dtype=np.bool_)
+        self.mem_cntr       = 0
+        self.train_steps    = 0
+
+    def store(self, s, a, r, s_, done):
+        idx = self.mem_cntr % self.max_mem
+        self.state_mem[idx]      = s
+        self.action_mem[idx]     = a
+        self.reward_mem[idx]     = r
+        self.next_state_mem[idx] = s_
+        self.done_mem[idx]       = done
         self.mem_cntr += 1
 
-    def choose_action(self, observation):
-        state = torch.tensor([observation], dtype=torch.float).to(self.Q_eval.device)
-        if np.random.random() > self.epsilon:
-            actions = self.Q_eval.forward(state)
-            action = torch.argmax(actions).item()
-        else:
-            action = np.random.choice(self.action_space)
-        return action
+    def choose_action(self, state):
+        if np.random.random() < self.epsilon:
+            return np.random.randint(self.n_actions)
+        with torch.no_grad():
+            s = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+            q = self.q_online(s)
+            return int(torch.argmax(q, dim=1).item())
+
+    def soft_update_target(self):
+        """Polyak averaging: θ_target = τ·θ_online + (1-τ)·θ_target"""
+        for p_t, p_o in zip(self.q_target.parameters(), self.q_online.parameters()):
+            p_t.data.copy_(self.tau * p_o.data + (1.0 - self.tau) * p_t.data)
+
+    def learn(self):
+        if self.mem_cntr < self.warmup_steps:
+            return None  # still warming up
+
+        # Sample batch
+        max_mem = min(self.mem_cntr, self.max_mem)
+        idx = np.random.choice(max_mem, self.batch_size, replace=False)
+
+        s  = torch.tensor(self.state_mem[idx],      device=self.device)
+        a  = torch.tensor(self.action_mem[idx],     device=self.device)
+        r  = torch.tensor(self.reward_mem[idx],     device=self.device)
+        s_ = torch.tensor(self.next_state_mem[idx], device=self.device)
+        d  = torch.tensor(self.done_mem[idx],       device=self.device)
+
+        # Current Q(s, a)
+        q_pred = self.q_online(s).gather(1, a.unsqueeze(1)).squeeze(1)
+
+        # Double DQN target:
+        #   1. Pick best action using ONLINE net
+        #   2. Evaluate that action with TARGET net
+        with torch.no_grad():
+            best_actions = self.q_online(s_).argmax(dim=1, keepdim=True)
+            q_next       = self.q_target(s_).gather(1, best_actions).squeeze(1)
+            q_next[d]    = 0.0
+            q_target     = r + self.gamma * q_next
+
+        # Huber loss (smoother than MSE for large reward magnitudes)
+        loss = F.smooth_l1_loss(q_pred, q_target)
+
+        self.optim.zero_grad()
+        loss.backward()
+        # Gradient clipping for stability
+        torch.nn.utils.clip_grad_norm_(self.q_online.parameters(), 10.0)
+        self.optim.step()
+
+        # Soft target update every step
+        self.soft_update_target()
+
+        self.train_steps += 1
+        return float(loss.item())
 
     def decay_epsilon(self):
-        """Call once per epoch — epsilon decays gradually across epochs."""
-        self.epsilon = max(self.epsilon - self.epsilon_dec, self.epsilon_end)
+        self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_end)
 
-    def save(self, model_name):
-        torch.save(self.Q_eval.state_dict(), f'models/{model_name}.bin')
+    def save(self, name):
+        torch.save({
+            'q_online': self.q_online.state_dict(),
+            'q_target': self.q_target.state_dict(),
+            'input_dims': self.input_dims,
+            'n_actions': self.n_actions,
+        }, f'models/{name}.bin')
 
-    def learn(self, junction=0):
-        """FIX: Sample a random mini-batch from replay buffer — not all transitions."""
-        if self.mem_cntr < self.batch_size:
-            return  # not enough data yet
+    def load(self, name):
+        ckpt = torch.load(f'models/{name}.bin', map_location=self.device)
+        self.q_online.load_state_dict(ckpt['q_online'])
+        if 'q_target' in ckpt:
+            self.q_target.load_state_dict(ckpt['q_target'])
 
-        self.Q_eval.optimizer.zero_grad()
 
-        max_mem = min(self.mem_cntr, self.max_mem)
-        batch = np.random.choice(max_mem, self.batch_size, replace=False)
-
-        state_batch     = torch.tensor(self.state_memory[batch]).to(self.Q_eval.device)
-        new_state_batch = torch.tensor(self.new_state_memory[batch]).to(self.Q_eval.device)
-        reward_batch    = torch.tensor(self.reward_memory[batch]).to(self.Q_eval.device)
-        terminal_batch  = torch.tensor(self.terminal_memory[batch]).to(self.Q_eval.device)
-        action_batch    = self.action_memory[batch]
-
-        batch_idx = np.arange(self.batch_size, dtype=np.int32)
-        q_eval    = self.Q_eval.forward(state_batch)[batch_idx, action_batch]
-        q_next    = self.Q_eval.forward(new_state_batch)
-        q_next[terminal_batch] = 0.0
-        q_target  = reward_batch + self.gamma * torch.max(q_next, dim=1)[0]
-
-        loss = self.Q_eval.loss(q_target, q_eval).to(self.Q_eval.device)
-        loss.backward()
-        self.Q_eval.optimizer.step()
-
+# ── Phase string builder ─────────────────────────────────────────────────────
 
 def build_phase_strings(state_length, n_actions):
-    """Dynamically build yellow/green phase strings based on actual signal state length."""
     signals_per_group = state_length // n_actions
-    select_lane = []
+    phases = []
     for i in range(n_actions):
-        yellow = 'r' * (i * signals_per_group) + \
-                 'y' * signals_per_group + \
+        yellow = 'r' * (i * signals_per_group) + 'y' * signals_per_group + \
                  'r' * ((n_actions - i - 1) * signals_per_group)
-        green  = 'r' * (i * signals_per_group) + \
-                 'G' * signals_per_group + \
+        green  = 'r' * (i * signals_per_group) + 'G' * signals_per_group + \
                  'r' * ((n_actions - i - 1) * signals_per_group)
         yellow = yellow.ljust(state_length, 'r')[:state_length]
         green  = green.ljust(state_length, 'r')[:state_length]
-        select_lane.append([yellow, green])
-    return select_lane
+        phases.append([yellow, green])
+    return phases
 
 
-def run(train=True, model_name="model", epochs=50, steps=500, ard=False):
-    ard = False
+# ── State builder ────────────────────────────────────────────────────────────
 
-    best_time      = np.inf
-    total_time_list = []
+def build_state(unique_lanes, current_action, n_actions):
+    """
+    Rich state: [vehicle counts (n_actions) + waiting times normalized (n_actions) + phase one-hot (n_actions)]
+    """
+    counts = []
+    waits  = []
+    for lane in unique_lanes:
+        # count vehicles on this lane (only those past 10m)
+        c = 0
+        for vid in traci.lane.getLastStepVehicleIDs(lane):
+            if traci.vehicle.getLanePosition(vid) > 10:
+                c += 1
+        counts.append(c)
+        # waiting time on this lane (normalized to seconds, then scaled)
+        waits.append(traci.lane.getWaitingTime(lane) / 100.0)  # rough normalization
 
-    # ── Detect network properties ─────────────────────────────────────────────
-    traci.start(
-        [checkBinary("sumo"), "-c", "configuration.sumocfg",
-         "--tripinfo-output", "maps/tripinfo.xml"]
-    )
-    all_junctions    = traci.trafficlight.getIDList()
-    junction_numbers = list(range(len(all_junctions)))
-    sample_junction  = all_junctions[0]
-    state_length     = len(traci.trafficlight.getRedYellowGreenState(sample_junction))
-    controlled_lanes = traci.trafficlight.getControlledLanes(sample_junction)
-    unique_lanes     = list(dict.fromkeys(controlled_lanes))
-    input_dims       = len(unique_lanes)
+    # one-hot of current action
+    phase_oh = [0.0] * n_actions
+    if 0 <= current_action < n_actions:
+        phase_oh[current_action] = 1.0
+
+    state = counts + waits + phase_oh
+    # pad if unique_lanes < n_actions
+    while len(state) < 3 * n_actions:
+        state.append(0.0)
+    return state[:3 * n_actions]
+
+
+# ── Training loop ────────────────────────────────────────────────────────────
+
+def run_training(model_name="ddqn_model", epochs=2000, steps=500):
+    # Detect network
+    traci.start([checkBinary("sumo"), "-c", "configuration.sumocfg",
+                 "--no-warnings", "true"])
+    all_junctions  = traci.trafficlight.getIDList()
+    sample         = all_junctions[0]
+    state_length   = len(traci.trafficlight.getRedYellowGreenState(sample))
+    controlled     = traci.trafficlight.getControlledLanes(sample)
+    unique_lanes   = list(dict.fromkeys(controlled))
+    n_actions      = len(unique_lanes)
     traci.close()
 
-    select_lane = build_phase_strings(state_length, input_dims)
+    input_dims  = 3 * n_actions  # counts + waits + phase one-hot
+    select_lane = build_phase_strings(state_length, n_actions)
 
-    print(f"Device: cpu")
-    print(f"State length: {state_length}, Input dims: {input_dims}")
-    print(f"Junctions: {list(all_junctions)}")
-    print(f"Phase strings:")
-    for i, phase in enumerate(select_lane):
-        print(f"  Action {i}: yellow={phase[0]}  green={phase[1]}")
+    print(f"Device: {'cuda' if torch.cuda.is_available() else 'cpu'}")
+    print(f"State length: {state_length}, n_actions: {n_actions}, input_dims: {input_dims}")
+    print(f"Unique lanes: {unique_lanes}")
 
-    # ── Build agent ───────────────────────────────────────────────────────────
-    brain = Agent(
-        gamma=0.99,
-        epsilon=1.0 if train else 0.0,
-        lr=0.0001,           # FIX: much lower lr — stable learning
+    # Build agent
+    agent = DoubleDQNAgent(
         input_dims=input_dims,
-        fc1_dims=256,
-        fc2_dims=256,
-        batch_size=64,       # FIX: small fixed batch size
-        n_actions=input_dims,
-        junctions=junction_numbers,
-        epsilon_dec=0.02,    # FIX: decays per epoch (1.0 → 0.05 over ~48 epochs)
+        n_actions=n_actions,
+        lr=5e-4,
+        gamma=0.99,
+        epsilon_start=1.0,
         epsilon_end=0.05,
+        epsilon_decay=0.995,
+        batch_size=128,
+        memory_size=100000,
+        tau=0.005,
+        warmup_steps=1000,
     )
 
-    if not train:
-        brain.Q_eval.load_state_dict(
-            torch.load(f'models/{model_name}.bin', map_location=brain.Q_eval.device))
-
-    min_duration = 5
+    best_time       = np.inf
+    total_time_list = []
+    loss_list       = []
+    min_duration    = 5
 
     for e in range(epochs):
-        traci.start(
-            [checkBinary("sumo"), "-c", "configuration.sumocfg",
-             "--tripinfo-output", "tripinfo.xml"]
-        )
+        traci.start([checkBinary("sumo"), "-c", "configuration.sumocfg",
+                     "--no-warnings", "true"])
 
-        print(f"epoch: {e}  epsilon: {brain.epsilon:.3f}")
-
-        step       = 0
-        total_time = 0
-
-        traffic_lights_time = {j: 0 for j in all_junctions}
-        # pending[jn] holds (state_taken_in, action_chosen) from the previous
-        # decision cycle. When that cycle ends we know its reward (waiting
-        # time accumulated while the action was active) and the new state,
-        # so we can store a CORRECT (s, a, r, s') tuple.
-        pending = {jn: None for jn in junction_numbers}
-        pending_wait_accum = {jn: 0.0 for jn in junction_numbers}
+        step                  = 0
+        total_time            = 0.0
+        traffic_lights_time   = {j: 0 for j in all_junctions}
+        pending               = {jn: None for jn in range(len(all_junctions))}
+        pending_wait_start    = {jn: 0.0  for jn in range(len(all_junctions))}
+        current_phase_action  = {jn: 0    for jn in range(len(all_junctions))}
+        epoch_losses          = []
 
         while step <= steps:
-            traci.simulationStep()
+            try:
+                traci.simulationStep()
+            except Exception:
+                break
 
-            for junction_number, junction in enumerate(all_junctions):
+            for jn, junction in enumerate(all_junctions):
                 try:
-                    controled_lanes = traci.trafficlight.getControlledLanes(junction)
+                    waiting_now = total_waiting(unique_lanes)
                 except Exception:
                     break
 
-                waiting_time = get_waiting_time(controled_lanes)
-                total_time += waiting_time
-                # Accumulate waiting time experienced under the action that's
-                # currently active (= the action chosen in the previous cycle).
-                pending_wait_accum[junction_number] += waiting_time
+                total_time += waiting_now
 
                 if traffic_lights_time[junction] == 0:
-                    # ── current observation (this is s' for the previous action) ──
-                    vehicles_per_lane = get_vehicle_numbers(controled_lanes)
-                    seen = {}
-                    for lane, count in vehicles_per_lane.items():
-                        seen[lane] = seen.get(lane, 0) + count
-                    next_state = list(seen.values())[:input_dims]
-                    while len(next_state) < input_dims:
-                        next_state.append(0)
+                    # Build rich state
+                    next_state = build_state(unique_lanes,
+                                             current_phase_action[jn], n_actions)
 
-                    # ── close out the previous decision: (s, a, r, s') ──
-                    if pending[junction_number] is not None and train:
-                        prev_state, prev_act = pending[junction_number]
-                        # reward = negative waiting accumulated while prev_act
-                        # was the active phase (true credit assignment)
-                        reward = -1.0 * pending_wait_accum[junction_number]
-                        brain.store_transition(
-                            prev_state, next_state, prev_act,
-                            reward, (step == steps)
-                        )
-                        brain.learn()
+                    # Close out previous decision with proper (s, a, r, s')
+                    if pending[jn] is not None:
+                        prev_state, prev_action = pending[jn]
+                        # Delta reward: how much waiting time changed during prev action
+                        delta_wait = waiting_now - pending_wait_start[jn]
+                        # Reward = negative delta (lower waiting growth = better)
+                        # Normalize so reward magnitudes stay manageable
+                        reward = -delta_wait / 1000.0
+                        agent.store(prev_state, prev_action, reward, next_state, (step == steps))
+                        loss = agent.learn()
+                        if loss is not None:
+                            epoch_losses.append(loss)
 
-                    # ── pick a new action for current state ──
-                    action = brain.choose_action(next_state)
-                    pending[junction_number] = (next_state, action)
-                    pending_wait_accum[junction_number] = 0.0
+                    # Choose new action
+                    action = agent.choose_action(next_state)
+                    pending[jn]               = (next_state, action)
+                    pending_wait_start[jn]    = waiting_now
+                    current_phase_action[jn]  = action
 
-                    phaseDuration(junction, 6, select_lane[action][0])
-                    phaseDuration(junction, min_duration + 10, select_lane[action][1])
+                    phaseDuration(junction, 3, select_lane[action][0])  # yellow
+                    phaseDuration(junction, min_duration + 10, select_lane[action][1])  # green
                     traffic_lights_time[junction] = min_duration + 10
                 else:
                     traffic_lights_time[junction] -= 1
 
             step += 1
 
-        print(f"total_time {total_time}")
+        agent.decay_epsilon()
+
+        try:
+            traci.close()
+        except Exception:
+            pass
+
+        mean_loss = np.mean(epoch_losses) if epoch_losses else 0.0
         total_time_list.append(total_time)
+        loss_list.append(mean_loss)
 
-        if total_time < best_time:
+        if total_time < best_time and agent.mem_cntr > agent.warmup_steps:
             best_time = total_time
-            if train:
-                brain.save(model_name)
-                print(f"  ✓ Best model saved (epoch {e}, waiting={total_time:.0f})")
+            agent.save(model_name)
+            saved_msg = " ★ BEST SAVED"
+        else:
+            saved_msg = ""
 
-        traci.close()
+        if e % 10 == 0 or e < 5:
+            print(f"epoch {e:>4d}  ε={agent.epsilon:.3f}  "
+                  f"wait={total_time:>12,.0f}  loss={mean_loss:.4f}{saved_msg}")
+        elif saved_msg:
+            print(f"epoch {e:>4d}  ε={agent.epsilon:.3f}  "
+                  f"wait={total_time:>12,.0f}  loss={mean_loss:.4f}{saved_msg}")
+
         sys.stdout.flush()
 
-        # FIX: decay epsilon ONCE per epoch
-        if train:
-            brain.decay_epsilon()
+    # ── Plot ────────────────────────────────────────────────────────────
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
 
-        if not train:
-            break
-
-    if train:
-        # Plot with moving average for cleaner visualization
-        window = 5
+    # Top: total waiting time
+    ax1.plot(total_time_list, alpha=0.3, color='steelblue', label='Per epoch')
+    window = max(10, epochs // 50)
+    if len(total_time_list) >= window:
         ma = np.convolve(total_time_list, np.ones(window)/window, mode='valid')
+        ax1.plot(range(window-1, len(total_time_list)), ma,
+                 color='steelblue', linewidth=2, label=f'Moving avg ({window})')
+    best_epoch_idx = int(np.argmin(total_time_list))
+    ax1.scatter([best_epoch_idx], [total_time_list[best_epoch_idx]],
+                color='gold', s=120, zorder=5, label=f'Best (ep {best_epoch_idx})')
+    ax1.set_xlabel("Epoch")
+    ax1.set_ylabel("Total Waiting Time")
+    ax1.set_title(f"Double DQN Training — {model_name}")
+    ax1.legend()
+    ax1.grid(alpha=0.3)
 
-        fig, ax = plt.subplots(figsize=(10, 5))
-        ax.plot(total_time_list, alpha=0.3, color='steelblue', label='Per epoch')
-        ax.plot(range(window-1, len(total_time_list)),
-                ma, color='steelblue', linewidth=2, label='Moving avg (5)')
-        ax.set_xlabel("Epochs")
-        ax.set_ylabel("Total Waiting Time")
-        ax.set_title(f"DQN Training — {model_name}")
-        ax.legend()
-        plt.tight_layout()
-        plt.savefig(f'plots/time_vs_epoch_{model_name}.png')
-        plt.show()
+    # Bottom: loss
+    if any(l > 0 for l in loss_list):
+        ax2.plot(loss_list, alpha=0.5, color='crimson')
+        ax2.set_xlabel("Epoch")
+        ax2.set_ylabel("Mean Huber Loss")
+        ax2.set_title("Training Loss")
+        ax2.grid(alpha=0.3)
+        ax2.set_yscale('log')
+
+    plt.tight_layout()
+    plt.savefig(f'plots/ddqn_training_{model_name}.png', dpi=120)
+    plt.show()
+
+    # Also save raw data for later analysis
+    np.save(f'plots/ddqn_waiting_{model_name}.npy', np.array(total_time_list))
+    np.save(f'plots/ddqn_loss_{model_name}.npy',    np.array(loss_list))
 
 
 def get_options():
-    optParser = optparse.OptionParser()
-    optParser.add_option("-m", dest='model_city1', type='string', default="model",
-                         help="name of model")
-    optParser.add_option("--train", action='store_true', default=False,
-                         help="training or testing")
-    optParser.add_option("-e", dest='epochs', type='int', default=50,
-                         help="Number of epochs")
-    optParser.add_option("-s", dest='steps', type='int', default=500,
-                         help="Number of steps")
-    optParser.add_option("--ard", action='store_true', default=False,
-                         help="Connect Arduino (disabled)")
-    options, args = optParser.parse_args()
-    return options
+    p = optparse.OptionParser()
+    p.add_option("-m", dest="model_name", default="ddqn_model")
+    p.add_option("-e", dest="epochs",     type='int', default=2000)
+    p.add_option("-s", dest="steps",      type='int', default=500)
+    opts, _ = p.parse_args()
+    return opts
 
 
 if __name__ == "__main__":
-    options  = get_options()
-    model_name = options.model_city1
-    train    = options.train
-    epochs   = options.epochs
-    steps    = options.steps
-    ard      = options.ard
-    run(train=train, model_name=model_name, epochs=epochs, steps=steps, ard=ard)
+    opts = get_options()
+    run_training(model_name=opts.model_name, epochs=opts.epochs, steps=opts.steps)

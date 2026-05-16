@@ -1,23 +1,33 @@
-DQN vs Fixed-Timer Benchmark Results
-============================================================
+Double DQN vs Multiple Fixed-Timer Baselines
+======================================================================
+Steps per run: 1500
+Runs per controller: 3
 
-Runs per controller : 5
-Steps per run       : 500
+Fixed 10s:
+  Run 1: 170,423
+  Run 2: 170,423
+  Run 3: 170,423
+  Mean: 170,423  Std: 0
 
-Fixed Timer baseline:
-  Run 1: 1,213,968
-  Run 2: 1,213,968
-  Run 3: 1,213,968
-  Run 4: 1,213,968
-  Run 5: 1,213,968
-  Mean: 1,213,968  Std: 0
+Fixed 20s:
+  Run 1: 395,815
+  Run 2: 395,815
+  Run 3: 395,815
+  Mean: 395,815  Std: 0
 
-DQN agent (best_model.bin):
-  Run 1: 17,502,516
-  Run 2: 17,502,516
-  Run 3: 17,502,516
-  Run 4: 17,502,516
-  Run 5: 17,502,516
-  Mean: 17,502,516  Std: 0
+Fixed 30s:
+  Run 1: 637,560
+  Run 2: 637,560
+  Run 3: 637,560
+  Mean: 637,560  Std: 0
 
-Improvement: -1341.8%
+Double DQN:
+  Run 1: 348,166
+  Run 2: 348,166
+  Run 3: 348,166
+  Mean: 348,166  Std: 0
+
+Improvement of Double DQN vs each baseline:
+  vs Fixed 10s: -104.3%
+  vs Fixed 20s: +12.0%
+  vs Fixed 30s: +45.4%

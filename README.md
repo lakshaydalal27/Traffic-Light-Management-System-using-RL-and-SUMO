@@ -1,40 +1,66 @@
-# 🚦 Intelligent Traffic Management System — Double DQN
+# 🚦 Intelligent Traffic Management System using Deep Reinforcement Learning
 
-> **Branch: `double-dqn-improved`** — Advanced reinforcement learning implementation with Double DQN, soft target updates, richer state representation, and improved reward shaping.
-
-A complete end-to-end Reinforcement Learning system that uses **Double DQN** to control traffic signals at a 4-way intersection, with a real-time web dashboard for visualization.
+> A complete end-to-end Deep Reinforcement Learning system for traffic signal control. Built from scratch in PyTorch with SUMO traffic simulator integration and a real-time web dashboard.
 
 ---
 
-## 🎯 What This Branch Achieves
+## 🎯 What This Project Does
 
-Unlike the basic DQN on `main`, this branch implements **state-of-the-art techniques** and produces a trained agent that **beats real-world fixed-timer baselines**:
+Uses a **Double DQN agent** to dynamically choose which lane gets the green light at a 4-way intersection, replacing traditional fixed-timer systems. The agent learns by interacting with the SUMO traffic simulator, optimizing for minimum total vehicle waiting time.
 
-| Comparison | Result |
-|------------|--------|
-| DQN vs Fixed Timer (20s green/lane) | **+12% better** ✓ |
-| DQN vs Fixed Timer (30s green/lane) | **+45% better** ✓ |
-| DQN vs Fixed Timer (10s green/lane) | −104% (10s happens to be near-optimal for this scenario) |
-
-See `performance/REPORT.md` for full analysis.
+**Final result**: Our trained Double DQN agent outperforms 20-second and 30-second fixed-timer baselines by 12% and 45% respectively on identical test scenarios.
 
 ---
 
-## 🧠 Algorithm: Double DQN with Improvements
+## 🛤️ The Project Journey
 
-| Technique | Why |
-|-----------|-----|
-| Double DQN (online + target networks) | Eliminates Q-value overestimation |
-| Soft target updates (Polyak τ=0.005) | Smoother, more stable learning |
-| Rich state (12 dims) | Counts + waiting times + current phase |
-| Delta-based reward | Better credit assignment |
-| Huber loss + gradient clipping | Robust training |
-| Warmup phase (1000 steps) | Stable initial learning |
-| Larger replay buffer (100k) | Better off-policy diversity |
+This project went through **three iterative experiments**, each on a separate Git branch — reflecting real ML engineering practice:
+
+### Experiment 1: Baseline DQN (`main` → early commits)
+- Standard DQN with experience replay
+- 4-dimensional state (vehicle counts per lane)
+- **Result**: Did not reliably beat fixed-timer baseline
+- **Learning**: Basic DQN suffers from Q-value overestimation and sparse rewards
+
+### Experiment 2: Double DQN (`double-dqn-improved` branch → merged to main) ⭐
+- Double DQN with target network + soft Polyak updates
+- 12-dimensional rich state (counts + waiting times + phase one-hot)
+- Delta-based reward (better credit assignment)
+- Huber loss with gradient clipping
+- **Result**: Beats 2 of 3 fixed-timer baselines clearly (+12%, +45%)
+- **Status**: This is the **production model**, currently on `main`
+
+### Experiment 3: Adaptive Duration DQN (`adaptive-duration` branch)
+- Expanded action space: 12 actions (4 lanes × 3 duration choices)
+- Agent learns to pick both *which lane* AND *how long*
+- **Result**: Slightly underperformed v2 (0.411M vs 0.348M waiting time)
+- **Learning**: Larger action space requires significantly more training (10k+ epochs); kept as a documented experiment
+
+The three branches show the complete experimental record, including what didn't work — exactly how real ML research progresses.
 
 ---
 
-## 🏗️ Architecture
+## 🧠 Algorithm: Double DQN
+
+| Component | Specification |
+|-----------|---------------|
+| **State** | 12-D: [counts × 4, waiting times × 4, phase one-hot × 4] |
+| **Action** | 4 discrete: which lane gets green |
+| **Reward** | Negative delta of total waiting time |
+| **Network** | 2-layer MLP (12 → 128 → 128 → 4) |
+| **Algorithm** | Double DQN with soft target updates |
+
+### Bellman Update
+```
+target = r + γ × Q_target(s', argmax_a Q_online(s', a))
+loss   = HuberLoss(Q_online(s, a), target)
+```
+
+Double DQN decouples action selection from value estimation, preventing the network from chasing its own predictions — a common DQN failure mode.
+
+---
+
+## 🏗️ System Architecture
 
 ```
 ┌──────────────────┐    HTTP    ┌──────────────────┐   TraCI    ┌────────────┐
@@ -46,8 +72,6 @@ See `performance/REPORT.md` for full analysis.
                                 ┌──────────────────┐
                                 │  Double DQN      │
                                 │  (PyTorch)       │
-                                │  12 → 128 → 128  │
-                                │  → 4 actions     │
                                 └──────────────────┘
 ```
 
@@ -57,30 +81,26 @@ See `performance/REPORT.md` for full analysis.
 
 ```
 .
-├── train.py                       # Baseline DQN (legacy)
-├── train_v2.py                    # Double DQN (THIS BRANCH)
+├── train.py                       # Double DQN training script
 ├── configuration.sumocfg          # SUMO config
 ├── dashboard/
-│   ├── main.py                    # FastAPI server + RL integration
+│   ├── main.py                    # FastAPI server + live RL integration
 │   ├── templates/index.html       # Light-theme dashboard UI
-│   └── static/                    # CSS / JS
+│   └── static/                    # CSS / JS assets
 ├── maps/
 │   ├── network.net.xml            # 4-way intersection
 │   └── routes.rou.xml             # 150 vehicles, mixed routes
 ├── models/
-│   ├── best_model.bin             # baseline DQN (main branch)
-│   └── double_dqn_best.bin        # ★ TRAINED Double DQN (this branch)
+│   └── double_dqn_best.bin        # Trained model checkpoint
 ├── plots/
-│   ├── time_vs_epoch_*.png
-│   └── ddqn_training_*.png        # Double DQN training curve + loss
+│   └── training_curve.png         # Training progress
 ├── performance/
-│   ├── benchmark.py               # baseline benchmark
-│   ├── benchmark_v2.py            # Double DQN vs Fixed 15s
-│   ├── benchmark_v3.py            # ★ Double DQN vs Fixed 10s/20s/30s
+│   ├── benchmark.py               # DQN vs fixed-timer benchmark
 │   ├── REPORT.md                  # Full performance analysis
-│   ├── dqn_v3_vs_fixed_timers.png # Final comparison chart
-│   └── results_v3.txt             # Raw benchmark numbers
-└── training_log_v2.txt            # Training log
+│   ├── dqn_vs_fixed_timers.png    # Comparison chart
+│   └── results.txt                # Raw benchmark numbers
+├── training_log.txt
+└── README.md
 ```
 
 ---
@@ -95,79 +115,80 @@ export SUMO_HOME="/path/to/sumo/share/sumo"
 
 ### 2. Train Double DQN from scratch (~25 minutes)
 ```bash
-python3 train_v2.py -e 2500 -s 1500 -m double_dqn_best 2>&1 | tee training_log_v2.txt
+python3 train.py -e 2500 -s 1500 -m double_dqn_best 2>&1 | tee training_log.txt
 ```
 
-### 3. Run benchmark against fixed timers
+### 3. Benchmark against fixed timers
 ```bash
-python3 performance/benchmark_v3.py
+python3 performance/benchmark.py
 ```
 
-### 4. Run the dashboard
+### 4. Launch the dashboard
 ```bash
 python3 dashboard/main.py
 ```
-Open browser at **http://localhost:8000** and click **START**.
+Open **http://localhost:8000** and click **START**.
 
 ---
 
-## 📊 Dashboard Features
+## 📊 Live Dashboard Features
 
 - 🎨 Light cream theme with white panels
-- 🎯 Real intersection visualization in center with road, crosswalks, traffic lights
-- 🚗 Vehicle blocks rendered on each approach lane
-- 🚦 Traffic light bulbs (red/yellow/green) light up correctly
+- 🎯 Real intersection visualization (roads, crosswalks, lane labels)
+- 🚦 Traffic light bulbs (red/yellow/green) update live based on agent's decisions
+- 🚗 Vehicle blocks rendered on approach lanes from real SUMO data
 - ✨ Active lane glows green when DQN selects it
-- 🤖 Q-values per lane displayed (best one highlighted)
-- 📈 Live epoch / epsilon / waiting time
+- 🤖 Live Q-values per lane displayed (best one highlighted)
+- 📈 Live epoch, ε, and total waiting time
 
 ---
 
-## 🔬 Technical Details
+## 📈 Benchmark Results
 
-### State Space (12 dimensions)
-```
-[count_lane1, count_lane2, count_lane3, count_lane4,        ← vehicle counts
- wait_lane1,  wait_lane2,  wait_lane3,  wait_lane4,          ← waiting times (normalized)
- phase_oh_1,  phase_oh_2,  phase_oh_3,  phase_oh_4]          ← current phase one-hot
-```
+Trained agent vs 3 realistic fixed-timer settings (3 runs each, 1500 steps):
 
-### Action Space
-4 discrete actions: choose which lane gets green light.
+| Controller | Mean Waiting Time | vs DQN |
+|------------|-------------------|--------|
+| Fixed 10s green/lane | 0.170M | DQN -104% |
+| Fixed 20s green/lane | 0.396M | **DQN +12%** ✓ |
+| Fixed 30s green/lane | 0.638M | **DQN +45%** ✓ |
+| **Double DQN (ours)** | **0.348M** | — |
 
-### Reward
-```
-reward = -(waiting_time_now - waiting_time_when_action_chosen) / 1000
-```
-Negative delta of waiting time — rewards actions that reduce queue growth.
+The 10s short-cycle timer happens to be near-optimal for this specific traffic pattern. Real-world deployment requires adaptive control that generalizes across changing conditions — exactly what RL provides.
 
-### Training
-```
-2500 epochs × 1500 steps = 3,750,000 environment interactions
-```
+See `performance/REPORT.md` for the complete analysis.
 
 ---
 
-## 🎓 Academic Foundation
+## 🎓 Academic References
 
-References used:
-- Mnih et al. (2015) — *Human-level control through deep reinforcement learning*
+- Mnih et al. (2015) — *Human-level control through deep reinforcement learning* (Nature)
 - van Hasselt et al. (2015) — *Deep Reinforcement Learning with Double Q-learning*
-- Lillicrap et al. (2015) — *Continuous Control with Deep RL* (soft target updates)
+- Lillicrap et al. (2015) — *Continuous control with deep reinforcement learning* (soft target updates)
 - Sutton & Barto (2018) — *Reinforcement Learning: An Introduction*
 
-All techniques are standard, all implementations from scratch in PyTorch.
+All algorithms implemented from scratch in PyTorch. No external RL libraries (stable-baselines, RLlib, etc.).
 
 ---
 
 ## 🛠️ Tech Stack
 
 - **PyTorch** — Double DQN neural network
-- **SUMO** — traffic simulator (DLR, Germany)
+- **SUMO** — open-source traffic simulator (DLR, Germany)
 - **TraCI** — Python ↔ SUMO API
-- **FastAPI** + **Uvicorn** — backend
-- **Vanilla HTML/CSS/JS** — dashboard
+- **FastAPI** + **Uvicorn** — backend REST API
+- **Vanilla HTML/CSS/JS** — dashboard frontend
 
 ---
 
-*Branch: double-dqn-improved · 6th Semester Project — Intelligent Traffic Management System*
+## 🔬 Future Work
+
+- Multi-intersection coordination (multi-agent RL)
+- Adaptive green-duration learning (longer training schedule needed; see `adaptive-duration` branch for initial experiment)
+- Real-world deployment with sensor data integration
+- Curriculum learning across multiple traffic patterns (rush-hour, off-peak)
+- Try PPO or Rainbow DQN for more stable convergence
+
+---
+
+*6th Semester Project — Intelligent Traffic Management System*
