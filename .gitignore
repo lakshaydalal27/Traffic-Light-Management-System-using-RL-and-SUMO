@@ -22,4 +22,6 @@ env/
 *.pth
 
 # SUMO temporary/output files
-*.xml.gz
+*.xml.gz__pycache__/
+*.pyc
+tripinfo.xml
