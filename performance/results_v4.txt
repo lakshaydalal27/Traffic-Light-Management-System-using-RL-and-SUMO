@@ -1,0 +1,42 @@
+Final 5-way Benchmark Comparison
+================================================================================
+Steps per run: 1500
+Runs per controller: 3
+
+Fixed 10s:
+  Run 1: 170,423
+  Run 2: 170,423
+  Run 3: 170,423
+  Mean: 170,423  Std: 0
+
+Fixed 20s:
+  Run 1: 395,815
+  Run 2: 395,815
+  Run 3: 395,815
+  Mean: 395,815  Std: 0
+
+Fixed 30s:
+  Run 1: 637,560
+  Run 2: 637,560
+  Run 3: 637,560
+  Mean: 637,560  Std: 0
+
+Double DQN v2:
+  Run 1: 348,166
+  Run 2: 348,166
+  Run 3: 348,166
+  Mean: 348,166  Std: 0
+
+Adaptive DQN v3:
+  Run 1: 411,207
+  Run 2: 411,207
+  Run 3: 411,207
+  Mean: 411,207  Std: 0
+
+
+Ranking (best → worst):
+  1. Fixed 10s: 170,423
+  2. Double DQN v2: 348,166
+  3. Fixed 20s: 395,815
+  4. Adaptive DQN v3: 411,207
+  5. Fixed 30s: 637,560
